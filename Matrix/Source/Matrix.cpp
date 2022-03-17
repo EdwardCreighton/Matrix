@@ -9,7 +9,7 @@ Matrix::Matrix(int columns, int lines)
 
     matrix = new double[length];
 
-    InitMatrix();
+    SimpleInitMatrix();
 }
 
 Matrix::~Matrix()
@@ -17,11 +17,11 @@ Matrix::~Matrix()
     delete[] matrix;
 }
 
-void Matrix::InitMatrix()
+void Matrix::SimpleInitMatrix()
 {
     for (int i = 0; i < lines * columns; ++i)
     {
-        matrix[i] = (double) (i + 1);
+        matrix[i] = i + 1;
     }
 }
 
@@ -31,11 +31,26 @@ void Matrix::PrintMatrix()
 
     for (int columnsCount = 0; columnsCount < lines * columns; ++columnsCount)
     {
-        if ((columnsCount) % columns == 0)
+        if (columnsCount % columns == 0)
         {
             cout << endl;
         }
 
         cout << matrix[columnsCount] << "\t";
     }
+}
+
+void Matrix::SetValue(int columnIndex, int lineIndex, double &value)
+{
+    matrix[GetIndex(columnIndex, lineIndex)] = value;
+}
+
+double Matrix::GetValue(int columnIndex, int lineIndex)
+{
+    return matrix[GetIndex(columnIndex, lineIndex)];
+}
+
+int Matrix::GetIndex(int columnIndex, int lineIndex)
+{
+    return lineIndex * columns + columnIndex;
 }

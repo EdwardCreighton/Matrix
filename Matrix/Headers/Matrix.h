@@ -12,11 +12,18 @@ private:
     int lines;
     double *matrix;
 
+    int GetIndex(int columnIndex, int lineIndex);
+
 public:
     Matrix(int columns, int lines);
 
-    void InitMatrix();
+    void SimpleInitMatrix();
     void PrintMatrix();
+
+    void SetValue(int columnIndex, int lineIndex, double &value);
+    double GetValue(int columnIndex, int lineIndex);
+
+
 
     ~Matrix();
 };

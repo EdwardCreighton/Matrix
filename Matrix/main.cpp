@@ -1,7 +1,8 @@
-#include <iostream>
+#include "Headers/Matrix.h"
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+    Matrix matrix1(5, 5);
+
+    matrix1.PrintMatrix();
 }

@@ -13,6 +13,7 @@ private:
     double* matrix;
 
     int GetIndex(int columnIndex, int lineIndex);
+    friend bool MatricesEqual(const Matrix& matrix1, const Matrix& matrix2);
 
 public:
     Matrix(int columns, int lines);
@@ -25,6 +26,12 @@ public:
     double GetValue(int columnIndex, int lineIndex);
 
     Matrix& operator=(const Matrix& rightMatrix);
+
+    friend const Matrix operator+(const Matrix& leftMatrix, const Matrix& rightMatrix);
+    friend const Matrix operator-(const Matrix& leftMatrix, const Matrix& rightMatrix);
+
+    friend const Matrix operator*(const Matrix& matrix, double scalarValue);
+    friend const Matrix operator*(double scalarValue, const Matrix& matrix);
 
     ~Matrix();
 };

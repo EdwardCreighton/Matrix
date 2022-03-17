@@ -19,6 +19,8 @@ Matrix::Matrix(const Matrix &matrixOrig)
         delete[] matrix;
     }
 
+    this->matrix = new double[matrixOrig.lines * matrixOrig.columns];
+
     this->lines = matrixOrig.lines;
     this->columns = matrixOrig.columns;
 
@@ -71,6 +73,13 @@ int Matrix::GetIndex(int columnIndex, int lineIndex)
     return lineIndex * columns + columnIndex;
 }
 
+bool MatricesEqual(const Matrix &matrix1, const Matrix &matrix2)
+{
+    if (matrix1.lines != matrix2.lines || matrix1.columns != matrix2.columns) return false;
+
+    return true;
+}
+
 Matrix &Matrix::operator=(const Matrix &rightMatrix)
 {
     if (this->matrix == rightMatrix.matrix)
@@ -94,4 +103,51 @@ Matrix &Matrix::operator=(const Matrix &rightMatrix)
     }
 
     return *this;
+}
+
+const Matrix operator+(const Matrix &leftMatrix, const Matrix &rightMatrix)
+{
+    if (!MatricesEqual(leftMatrix, rightMatrix))
+    {
+        return Matrix(0, 0);
+    }
+
+    Matrix newMatrix(leftMatrix.columns, leftMatrix.lines);
+
+    for (int i = 0; i < newMatrix.lines * newMatrix.columns; ++i)
+    {
+        newMatrix.matrix[i] = leftMatrix.matrix[i] + rightMatrix.matrix[i];
+    }
+
+    return newMatrix;
+}
+
+const Matrix operator-(const Matrix &leftMatrix, const Matrix &rightMatrix)
+{
+    if (!MatricesEqual(leftMatrix, rightMatrix))
+    {
+        return Matrix(0, 0);
+    }
+
+    Matrix newRightMatrix = rightMatrix;
+    newRightMatrix = newRightMatrix * -1;
+
+    return leftMatrix + newRightMatrix;
+}
+
+const Matrix operator*(const Matrix &matrix, double scalarValue)
+{
+    Matrix newMatrix(matrix.columns, matrix.lines);
+
+    for (int i = 0; i < newMatrix.lines * newMatrix.columns; ++i)
+    {
+        newMatrix.matrix[i] *= scalarValue;
+    }
+
+    return newMatrix;
+}
+
+const Matrix operator*(double scalarValue, const Matrix& matrix)
+{
+    return matrix * scalarValue;
 }

@@ -3,9 +3,9 @@ project(Matrix)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Matrix
+set(SOURCE_FILES    main.cpp
+                    Source/Matrix.cpp)
 
-        Headers/Matrix.h
-        Source/Matrix.cpp
+set(HEADERS_FILES   Headers/Matrix.h)
 
-        main.cpp)
+add_executable(Matrix ${SOURCE_FILES} ${HEADERS_FILES})

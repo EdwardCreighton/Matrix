@@ -1,132 +1,248 @@
 #include "../Headers/Matrix.h"
 
-Matrix::Matrix(int columns, int lines)
+int Matrix::error = 0;
+
+unsigned int Matrix::GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
 {
+    lineIndex = ClampValue(lineIndex, 0, lines - 1);
+    columnIndex = ClampValue(columnIndex, 0, columns - 1);
+    return lineIndex * columns + columnIndex;
+}
+
+Matrix::Matrix()
+{
+    lines = 0;
+    columns = 0;
+    linLength = 0;
+    pMatrix = nullptr;
+}
+
+Matrix::Matrix(unsigned int lines, unsigned int columns)
+{
+    linLength = columns * lines;
+
+    pMatrix = new double[linLength];
+
+    if (pMatrix == nullptr)
+    {
+        error = -1;
+        this->lines = 0;
+        this->columns = 0;
+        linLength = 0;
+
+        return;
+    }
+
     this->lines = lines;
     this->columns = columns;
 
-    int length = columns * lines;
-
-    matrix = new double[length];
-
-    SimpleInitMatrix();
+    InitZeros();
 }
 
 Matrix::Matrix(const Matrix &matrixOrig)
 {
-    if (matrix != nullptr)
+    if (matrixOrig.linLength == 0)
     {
-        delete[] matrix;
+        lines = 0;
+        columns = 0;
+        linLength = 0;
+        pMatrix = nullptr;
+
+        return;
     }
 
-    this->matrix = new double[matrixOrig.lines * matrixOrig.columns];
+    if (pMatrix != nullptr)
+    {
+        delete[] pMatrix;
+        lines = 0;
+        columns = 0;
+        linLength = 0;
+    }
+
+    linLength = matrixOrig.lines * matrixOrig.columns;
+    this->pMatrix = new double[linLength];
+
+    if (pMatrix == nullptr)
+    {
+        error = -1;
+        lines = 0;
+        columns = 0;
+        linLength = 0;
+
+        return;
+    }
 
     this->lines = matrixOrig.lines;
     this->columns = matrixOrig.columns;
 
-    for (int i = 0; i < lines * columns; ++i)
+    for (int i = 0; i < linLength; ++i)
     {
-        matrix[i] = matrixOrig.matrix[i];
+        pMatrix[i] = matrixOrig.pMatrix[i];
     }
 }
 
 Matrix::~Matrix()
 {
-    delete[] matrix;
-}
-
-void Matrix::SimpleInitMatrix()
-{
-    for (int i = 0; i < lines * columns; ++i)
+    if (pMatrix != nullptr)
     {
-        matrix[i] = i + 1;
+        delete[] pMatrix;
+        columns = 0;
+        lines = 0;
+        linLength = 0;
     }
 }
 
-void Matrix::PrintMatrix()
+void Matrix::InitZeros()
 {
-    cout << matrix << endl;
-
-    for (int columnsCount = 0; columnsCount < lines * columns; ++columnsCount)
+    for (int linIndex = 0; linIndex < linLength; ++linIndex)
     {
-        if (columnsCount % columns == 0)
+        pMatrix[linIndex] = 0;
+    }
+
+    /*for (unsigned int lineIndex = 0; lineIndex < lines; ++lineIndex)
+    {
+        for (unsigned int columnIndex = 0; columnIndex < columns; ++columnIndex)
         {
-            cout << endl;
+            pMatrix[GetArrayIndex(lineIndex, columnIndex)] = 0;
         }
+    }*/
+}
 
-        cout << matrix[columnsCount] << "\t";
+void Matrix::ResizeMatrix(int newLines, int newColumns)
+{
+    if (lines == newLines && columns == newColumns) return;
+
+    if (newLines == 0 || newColumns == 0)
+    {
+        delete[] pMatrix;
+        lines = 0;
+        columns = 0;
+        linLength = 0;
+
+        return;
     }
-}
 
-void Matrix::SetValue(int columnIndex, int lineIndex, double& value)
-{
-    matrix[GetIndex(columnIndex, lineIndex)] = value;
-}
+    if (pMatrix != nullptr)
+    {
+        delete[] pMatrix;
+    }
 
-double Matrix::GetValue(int columnIndex, int lineIndex)
-{
-    return matrix[GetIndex(columnIndex, lineIndex)];
-}
+    linLength = newLines * newColumns;
+    pMatrix = new double[linLength];
 
-int Matrix::GetIndex(int columnIndex, int lineIndex)
-{
-    return lineIndex * columns + columnIndex;
-}
+    if (pMatrix == nullptr)
+    {
+        lines = 0;
+        columns = 0;
+        linLength = 0;
 
-bool MatricesEqual(const Matrix &matrix1, const Matrix &matrix2)
-{
-    if (matrix1.lines != matrix2.lines || matrix1.columns != matrix2.columns) return false;
+        return;
+    }
 
-    return true;
+    lines = newLines;
+    columns = newColumns;
+
+    InitZeros();
 }
 
 Matrix &Matrix::operator=(const Matrix &rightMatrix)
 {
-    if (this->matrix == rightMatrix.matrix)
+    if (pMatrix != nullptr)
     {
+        delete[] pMatrix;
+        lines = 0;
+        columns = 0;
+    }
+
+    linLength = rightMatrix.lines * rightMatrix.columns;
+    pMatrix = new double[linLength];
+
+    if (pMatrix == nullptr)
+    {
+        error = -1;
+        linLength = 0;
+
         return *this;
     }
-
-    if (matrix != nullptr)
-    {
-        delete[] matrix;
-    }
-
-    this->matrix = new double[rightMatrix.lines * rightMatrix.columns];
 
     this->lines = rightMatrix.lines;
     this->columns = rightMatrix.columns;
 
-    for (int i = 0; i < lines * columns; ++i)
+    for (int i = 0; i < linLength; ++i)
     {
-        matrix[i] = rightMatrix.matrix[i];
+        this->pMatrix[i] = rightMatrix.pMatrix[i];
     }
 
     return *this;
 }
 
-const Matrix operator+(const Matrix &leftMatrix, const Matrix &rightMatrix)
+Matrix Matrix::operator-() const
 {
-    if (!MatricesEqual(leftMatrix, rightMatrix))
-    {
-        return Matrix(0, 0);
-    }
+    Matrix newMatrix(*this);
 
-    Matrix newMatrix(leftMatrix.columns, leftMatrix.lines);
-
-    for (int i = 0; i < newMatrix.lines * newMatrix.columns; ++i)
+    for (int linIndex = 0; linIndex < newMatrix.linLength; ++linIndex)
     {
-        newMatrix.matrix[i] = leftMatrix.matrix[i] + rightMatrix.matrix[i];
+        newMatrix.pMatrix[linIndex] = -newMatrix.pMatrix[linIndex];
     }
 
     return newMatrix;
 }
 
-const Matrix operator-(const Matrix &leftMatrix, const Matrix &rightMatrix)
+Matrix &Matrix::operator+=(const Matrix &otherMatrix)
 {
-    if (!MatricesEqual(leftMatrix, rightMatrix))
+    if (this->lines != otherMatrix.lines || this->columns != otherMatrix.columns)
     {
-        return Matrix(0, 0);
+        error = -3;
+        return *this;
+    }
+
+    for (int linIndex = 0; linIndex < linLength; ++linIndex)
+    {
+        this->pMatrix[linIndex] += otherMatrix.pMatrix[linIndex];
+    }
+
+    return *this;
+}
+
+ostream &operator<<(ostream& os, const Matrix &matrix)
+{
+    for (int lineIndex = 0; lineIndex < matrix.lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < matrix.columns; ++columnIndex)
+        {
+            os << matrix.pMatrix[matrix.GetArrayIndex(lineIndex, columnIndex)] << "\t";
+        }
+
+        os << endl;
+    }
+
+    return os;
+}
+
+Matrix operator+(const Matrix &leftMatrix, const Matrix &rightMatrix)
+{
+    if (leftMatrix.lines != rightMatrix.lines || leftMatrix.columns != rightMatrix.columns)
+    {
+        Matrix::error = -3;
+        return Matrix();
+    }
+
+    Matrix newMatrix(leftMatrix.lines, leftMatrix.columns);
+
+    for (int i = 0; i < newMatrix.lines * newMatrix.columns; ++i)
+    {
+        newMatrix.pMatrix[i] = leftMatrix.pMatrix[i] + rightMatrix.pMatrix[i];
+    }
+
+    return newMatrix;
+}
+
+Matrix operator-(const Matrix &leftMatrix, const Matrix &rightMatrix)
+{
+    if (leftMatrix.lines != rightMatrix.lines || leftMatrix.columns != rightMatrix.columns)
+    {
+        Matrix::error = -3;
+        return Matrix();
     }
 
     Matrix newRightMatrix = rightMatrix;
@@ -135,19 +251,31 @@ const Matrix operator-(const Matrix &leftMatrix, const Matrix &rightMatrix)
     return leftMatrix + newRightMatrix;
 }
 
-const Matrix operator*(const Matrix &matrix, double scalarValue)
+Matrix operator*(const Matrix &matrix, double scalarValue)
 {
-    Matrix newMatrix(matrix.columns, matrix.lines);
+    Matrix newMatrix(matrix.lines, matrix.columns);
 
-    for (int i = 0; i < newMatrix.lines * newMatrix.columns; ++i)
+    for (int i = 0; i < newMatrix.GetLinLength(); ++i)
     {
-        newMatrix.matrix[i] *= scalarValue;
+        newMatrix.pMatrix[i] = matrix.pMatrix[i] * scalarValue;
     }
 
     return newMatrix;
 }
 
-const Matrix operator*(double scalarValue, const Matrix& matrix)
+Matrix operator*(double scalarValue, const Matrix &matrix)
 {
     return matrix * scalarValue;
+}
+
+Matrix operator/(const Matrix &matrix, double scalarValue)
+{
+    Matrix newMatrix(matrix.columns, matrix.lines);
+
+    for (unsigned int i = 0; i < newMatrix.GetLinLength(); ++i)
+    {
+        newMatrix.pMatrix[i] /= scalarValue;
+    }
+
+    return newMatrix;
 }

@@ -57,6 +57,26 @@ int main()
     Matrix matrix7 = matrix5 + matrix6;
     cout << matrix7 << endl;*/
 
+    // Add Matrices (variant 2)
+    /*Matrix matrix5(3, 3);
+    Matrix matrix6(3, 3);
+
+    double value = 1;
+
+    for (int line = 0; line < 3; ++line)
+    {
+        for (int column = 0; column < 3; ++column)
+        {
+            matrix5.SetValue(line, column, value);
+            matrix6.SetValue(line, column,value);
+
+            ++value;
+        }
+    }
+
+    matrix5 += matrix6;
+    cout << matrix5 << endl;*/
+
     // Multiply Matrix with scalar
     /*Matrix matrix8(3, 3);
 
@@ -69,9 +89,27 @@ int main()
             matrix8.SetValue(line, column, value);
         }
     }
-    cout << matrix8 << endl;
 
     matrix8 = matrix8 * 3;
+    cout << matrix8 << endl;*/
+
+    // Multiply Matrix with scalar (variant 2)
+    /*Matrix matrix8(3, 3);
+
+    double value = 5;
+
+    for (int line = 0; line < 3; ++line)
+    {
+        for (int column = 0; column < 3; ++column)
+        {
+            matrix8.SetValue(line, column, value);
+        }
+    }
+
+    matrix8 *= 3;
+    cout << matrix8 << endl;
+
+    matrix8 /= 5;
     cout << matrix8 << endl;*/
 
     // Subtract Matrices

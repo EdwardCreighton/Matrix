@@ -64,6 +64,9 @@ public:
     Matrix operator-() const;
 
     Matrix& operator+=(const Matrix &otherMatrix);
+    Matrix& operator-=(const Matrix &otherMatrix);
+    Matrix& operator*=(double value);
+    Matrix& operator/=(double value);
 
     friend ostream& operator<<(ostream& os, const Matrix& matrix);
 

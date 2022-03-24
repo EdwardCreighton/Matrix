@@ -204,6 +204,42 @@ Matrix &Matrix::operator+=(const Matrix &otherMatrix)
     return *this;
 }
 
+Matrix &Matrix::operator-=(const Matrix &otherMatrix)
+{
+    if (this->lines != otherMatrix.lines || this->columns != otherMatrix.columns)
+    {
+        error = -3;
+        return *this;
+    }
+
+    for (int linIndex = 0; linIndex < linLength; ++linIndex)
+    {
+        this->pMatrix[linIndex] -= otherMatrix.pMatrix[linIndex];
+    }
+
+    return *this;
+}
+
+Matrix &Matrix::operator*=(double value)
+{
+    for (int i = 0; i < GetLinLength(); ++i)
+    {
+        pMatrix[i] = pMatrix[i] * value;
+    }
+
+    return *this;
+}
+
+Matrix &Matrix::operator/=(double value)
+{
+    for (int i = 0; i < GetLinLength(); ++i)
+    {
+        pMatrix[i] = pMatrix[i] / value;
+    }
+
+    return *this;
+}
+
 ostream &operator<<(ostream& os, const Matrix &matrix)
 {
     for (int lineIndex = 0; lineIndex < matrix.lines; ++lineIndex)

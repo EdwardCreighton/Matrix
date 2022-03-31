@@ -9,17 +9,26 @@ int Matrix::error = 0;
     return lineIndex * columns + columnIndex;
 }*/
 
-Matrix::Matrix()
+/*Matrix::Matrix()
 {
     lines = 0;
     columns = 0;
     linLength = 0;
     pMatrix = nullptr;
-}
+}*/
 
 Matrix::Matrix(unsigned int lines, unsigned int columns)
 {
     linLength = columns * lines;
+
+    if (linLength == 0)
+    {
+        lines = 0;
+        columns = 0;
+        linLength = 0;
+        pMatrix = nullptr;
+        return;
+    }
 
     pMatrix = new double[linLength];
 
@@ -223,7 +232,7 @@ Matrix &Matrix::operator-=(const Matrix &otherMatrix)
 
 Matrix &Matrix::operator*=(double value)
 {
-    for (int i = 0; i < GetLinLength(); ++i)
+    for (int i = 0; i < linLength; ++i)
     {
         pMatrix[i] = pMatrix[i] * value;
     }
@@ -233,7 +242,7 @@ Matrix &Matrix::operator*=(double value)
 
 Matrix &Matrix::operator/=(double value)
 {
-    for (int i = 0; i < GetLinLength(); ++i)
+    for (int i = 0; i < linLength; ++i)
     {
         pMatrix[i] = pMatrix[i] / value;
     }
@@ -266,7 +275,7 @@ Matrix operator+(const Matrix &leftMatrix, const Matrix &rightMatrix)
 
     Matrix newMatrix(leftMatrix.lines, leftMatrix.columns);
 
-    for (int i = 0; i < newMatrix.lines * newMatrix.columns; ++i)
+    for (int i = 0; i < newMatrix.linLength; ++i)
     {
         newMatrix.pMatrix[i] = leftMatrix.pMatrix[i] + rightMatrix.pMatrix[i];
     }
@@ -292,7 +301,7 @@ Matrix operator*(const Matrix &matrix, double scalarValue)
 {
     Matrix newMatrix(matrix.lines, matrix.columns);
 
-    for (int i = 0; i < newMatrix.GetLinLength(); ++i)
+    for (int i = 0; i < newMatrix.linLength; ++i)
     {
         newMatrix.pMatrix[i] = matrix.pMatrix[i] * scalarValue;
     }
@@ -309,7 +318,7 @@ Matrix operator/(const Matrix &matrix, double scalarValue)
 {
     Matrix newMatrix(matrix.columns, matrix.lines);
 
-    for (unsigned int i = 0; i < newMatrix.GetLinLength(); ++i)
+    for (unsigned int i = 0; i < newMatrix.linLength; ++i)
     {
         newMatrix.pMatrix[i] /= scalarValue;
     }

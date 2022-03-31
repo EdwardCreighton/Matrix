@@ -22,10 +22,9 @@ private:
     /// 0: no errors;
     static int error;
 
-    static unsigned int ClampValue(unsigned int value, unsigned int minValue, unsigned int maxValue)
+    inline unsigned int ClampValue(unsigned int value, unsigned int maxValue)
     {
         if (value > maxValue) return maxValue;
-        if (value < minValue) return minValue;
         return value;
     }
     inline unsigned int GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
@@ -39,8 +38,8 @@ private:
     void InitZeros();
 
 public:
-    Matrix();
-    Matrix(unsigned int lines, unsigned int columns);
+    //Matrix();
+    Matrix(unsigned int lines = 0, unsigned int columns = 0);
     Matrix(const Matrix& matrixOrig);
     ~Matrix();
 
@@ -63,8 +62,8 @@ public:
             return;
         }
 
-        pMatrix[GetArrayIndex(ClampValue(lineIndex, 0, lines - 1),
-                              ClampValue(columnIndex, 0, columns - 1))]
+        pMatrix[GetArrayIndex(ClampValue(lineIndex, lines - 1),
+                              ClampValue(columnIndex, columns - 1))]
                               = value;
     }
     double GetValue(int lineIndex = 0, int columnIndex = 0)
@@ -75,8 +74,8 @@ public:
             return 0.0;
         }
 
-        return pMatrix[GetArrayIndex(ClampValue(lineIndex, 0, lines - 1),
-                                     ClampValue(columnIndex, 0, columns - 1))];
+        return pMatrix[GetArrayIndex(ClampValue(lineIndex, lines - 1),
+                                     ClampValue(columnIndex, columns - 1))];
     }
 
     Matrix& operator=(const Matrix& rightMatrix);

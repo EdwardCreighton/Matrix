@@ -15,7 +15,8 @@ private:
     double* pMatrix;
 
     /// \values
-    /// -3: unequal matrices
+    /// -4: index out of range;
+    /// -3: unequal matrices;
     /// -2: resize failed;
     /// -1: memory allocation failed;
     /// 0: no errors;
@@ -27,8 +28,11 @@ private:
         if (value < minValue) return minValue;
         return value;
     }
-    unsigned int GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const;
-    unsigned int GetLinLength()
+    inline unsigned int GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
+    {
+        return lineIndex * columns + columnIndex;
+    }
+    inline unsigned int GetLinLength() const
     {
         return linLength;
     }
@@ -49,15 +53,30 @@ public:
         error = newErrorCode;
     }
 
-    void ResizeMatrix(int newLines, int newColumns);
+    void ResizeMatrix(int newLines = 0, int newColumns = 0);
 
-    void SetValue(int lineIndex, int columnIndex, double& value)
+    void SetValue(int lineIndex = 0, int columnIndex = 0, double value = 0.0)
     {
-        pMatrix[GetArrayIndex(lineIndex, columnIndex)] = value;
+        if (linLength == 0)
+        {
+            error = -4;
+            return;
+        }
+
+        pMatrix[GetArrayIndex(ClampValue(lineIndex, 0, lines - 1),
+                              ClampValue(columnIndex, 0, columns - 1))]
+                              = value;
     }
-    double GetValue(int lineIndex, int columnIndex)
+    double GetValue(int lineIndex = 0, int columnIndex = 0)
     {
-        return pMatrix[GetArrayIndex(lineIndex, columnIndex)];
+        if (linLength == 0)
+        {
+            error = -4;
+            return 0.0;
+        }
+
+        return pMatrix[GetArrayIndex(ClampValue(lineIndex, 0, lines - 1),
+                                     ClampValue(columnIndex, 0, columns - 1))];
     }
 
     Matrix& operator=(const Matrix& rightMatrix);

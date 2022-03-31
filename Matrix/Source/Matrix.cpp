@@ -2,12 +2,12 @@
 
 int Matrix::error = 0;
 
-unsigned int Matrix::GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
+/*unsigned int Matrix::GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
 {
     lineIndex = ClampValue(lineIndex, 0, lines - 1);
     columnIndex = ClampValue(columnIndex, 0, columns - 1);
     return lineIndex * columns + columnIndex;
-}
+}*/
 
 Matrix::Matrix()
 {
@@ -98,14 +98,6 @@ void Matrix::InitZeros()
     {
         pMatrix[linIndex] = 0;
     }
-
-    /*for (unsigned int lineIndex = 0; lineIndex < lines; ++lineIndex)
-    {
-        for (unsigned int columnIndex = 0; columnIndex < columns; ++columnIndex)
-        {
-            pMatrix[GetArrayIndex(lineIndex, columnIndex)] = 0;
-        }
-    }*/
 }
 
 void Matrix::ResizeMatrix(int newLines, int newColumns)
@@ -122,6 +114,14 @@ void Matrix::ResizeMatrix(int newLines, int newColumns)
         return;
     }
 
+    if (linLength == newLines * newColumns)
+    {
+        lines = newLines;
+        columns = newColumns;
+
+        return;
+    }
+
     if (pMatrix != nullptr)
     {
         delete[] pMatrix;
@@ -132,6 +132,7 @@ void Matrix::ResizeMatrix(int newLines, int newColumns)
 
     if (pMatrix == nullptr)
     {
+        error = -1;
         lines = 0;
         columns = 0;
         linLength = 0;

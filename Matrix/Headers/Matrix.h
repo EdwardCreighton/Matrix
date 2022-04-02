@@ -14,7 +14,10 @@ private:
 
     double* pMatrix;
 
-    /// \values
+    /// \Computations
+    /// -11: singular matrix;
+    /// -10: non-square matrix;
+    /// \Regular
     /// -4: index out of range;
     /// -3: unequal matrices;
     /// -2: resize failed;
@@ -22,11 +25,12 @@ private:
     /// 0: no errors;
     static int error;
 
-    inline unsigned int ClampValue(unsigned int value, unsigned int maxValue)
+    inline static unsigned int ClampValue(unsigned int value, unsigned int maxValue)
     {
         if (value > maxValue) return maxValue;
         return value;
     }
+
     inline unsigned int GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
     {
         return lineIndex * columns + columnIndex;
@@ -35,23 +39,30 @@ private:
     {
         return linLength;
     }
+
     void InitZeros();
 
 public:
-    //Matrix();
     Matrix(unsigned int lines = 0, unsigned int columns = 0);
     Matrix(const Matrix& matrixOrig);
     ~Matrix();
 
-    static int GetErrorCode()
+    // Static functions
+    inline static int GetErrorCode()
     {
         return error;
     }
-    static void ResetErrorCode(int newErrorCode = 0)
+    inline static void ResetErrorCode(int newErrorCode = 0)
     {
         error = newErrorCode;
     }
 
+    inline static bool MatricesEqual(const Matrix &matrixA, const Matrix &matrixB)
+    {
+        return matrixA.lines == matrixB.lines && matrixA.columns == matrixB.columns;
+    }
+
+    // Matrix interface
     void ResizeMatrix(int newLines = 0, int newColumns = 0);
 
     void SetValue(int lineIndex = 0, int columnIndex = 0, double value = 0.0)
@@ -66,7 +77,7 @@ public:
                               ClampValue(columnIndex, columns - 1))]
                               = value;
     }
-    double GetValue(int lineIndex = 0, int columnIndex = 0)
+    double GetValue(int lineIndex = 0, int columnIndex = 0) const
     {
         if (linLength == 0)
         {
@@ -78,6 +89,10 @@ public:
                                      ClampValue(columnIndex, columns - 1))];
     }
 
+    // Matrix computations
+    static void ComputeLUFactorization(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
+
+    // Operators' overloading
     Matrix& operator=(const Matrix& rightMatrix);
     Matrix operator-() const;
 

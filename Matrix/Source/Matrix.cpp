@@ -2,33 +2,24 @@
 
 int Matrix::error = 0;
 
-/*unsigned int Matrix::GetArrayIndex(unsigned int lineIndex, unsigned int columnIndex) const
-{
-    lineIndex = ClampValue(lineIndex, 0, lines - 1);
-    columnIndex = ClampValue(columnIndex, 0, columns - 1);
-    return lineIndex * columns + columnIndex;
-}*/
-
-/*Matrix::Matrix()
-{
-    lines = 0;
-    columns = 0;
-    linLength = 0;
-    pMatrix = nullptr;
-}*/
-
 Matrix::Matrix(unsigned int lines, unsigned int columns)
 {
-    linLength = columns * lines;
-
-    if (linLength == 0)
+    if (lines != 0 && columns == 0)
     {
-        lines = 0;
-        columns = 0;
+        columns = lines;
+    }
+
+    if (lines == 0 || columns == 0)
+    {
+        this->lines = 0;
+        this->columns = 0;
         linLength = 0;
         pMatrix = nullptr;
+
         return;
     }
+
+    linLength = columns * lines;
 
     pMatrix = new double[linLength];
 
@@ -155,6 +146,77 @@ void Matrix::ResizeMatrix(int newLines, int newColumns)
     InitZeros();
 }
 
+void Matrix::ComputeLUFactorization(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU)
+{
+    if (!MatricesEqual(matrixA, matrixL) || !MatricesEqual(matrixA, matrixU))
+    {
+        error = -3;
+        return;
+    }
+
+    if (matrixA.lines != matrixA.columns)
+    {
+        error = -10;
+        return;
+    }
+
+    if (matrixA.pMatrix[0] == 0)
+    {
+        error = -11;
+        return;
+    }
+
+    // Init triangular matrices
+    for (int lineIndex = 0; lineIndex < matrixA.lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < matrixA.lines; ++columnIndex)
+        {
+            matrixU.SetValue(lineIndex, columnIndex, 0.0);
+
+            if (lineIndex == columnIndex)
+            {
+                matrixL.SetValue(lineIndex, columnIndex, 1.0);
+            }
+            else
+            {
+                matrixL.SetValue(lineIndex, columnIndex, 0.0);
+            }
+        }
+    }
+
+    double sum;
+    double value;
+
+    for (int lineIndex = 0; lineIndex < matrixA.lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < matrixA.lines; ++columnIndex)
+        {
+            sum = 0.0;
+
+            if (lineIndex <= columnIndex)
+            {
+                for (int k = 0; k < lineIndex; ++k)
+                {
+                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
+                }
+
+                value = matrixA.GetValue(lineIndex, columnIndex) - sum;
+                matrixU.SetValue(lineIndex, columnIndex, value);
+            }
+            else
+            {
+                for (int k = 0; k < columnIndex; ++k)
+                {
+                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
+                }
+
+                value = (matrixA.GetValue(lineIndex, columnIndex) - sum) / matrixU.GetValue(columnIndex, columnIndex);
+                matrixL.SetValue(lineIndex, columnIndex, value);
+            }
+        }
+    }
+}
+
 Matrix &Matrix::operator=(const Matrix &rightMatrix)
 {
     if (pMatrix != nullptr)
@@ -200,7 +262,7 @@ Matrix Matrix::operator-() const
 
 Matrix &Matrix::operator+=(const Matrix &otherMatrix)
 {
-    if (this->lines != otherMatrix.lines || this->columns != otherMatrix.columns)
+    if (!MatricesEqual(*this, otherMatrix))
     {
         error = -3;
         return *this;
@@ -216,7 +278,7 @@ Matrix &Matrix::operator+=(const Matrix &otherMatrix)
 
 Matrix &Matrix::operator-=(const Matrix &otherMatrix)
 {
-    if (this->lines != otherMatrix.lines || this->columns != otherMatrix.columns)
+    if (!MatricesEqual(*this, otherMatrix))
     {
         error = -3;
         return *this;
@@ -267,7 +329,7 @@ ostream &operator<<(ostream& os, const Matrix &matrix)
 
 Matrix operator+(const Matrix &leftMatrix, const Matrix &rightMatrix)
 {
-    if (leftMatrix.lines != rightMatrix.lines || leftMatrix.columns != rightMatrix.columns)
+    if (!Matrix::MatricesEqual(leftMatrix, rightMatrix))
     {
         Matrix::error = -3;
         return Matrix();
@@ -285,7 +347,7 @@ Matrix operator+(const Matrix &leftMatrix, const Matrix &rightMatrix)
 
 Matrix operator-(const Matrix &leftMatrix, const Matrix &rightMatrix)
 {
-    if (leftMatrix.lines != rightMatrix.lines || leftMatrix.columns != rightMatrix.columns)
+    if (!Matrix::MatricesEqual(leftMatrix, rightMatrix))
     {
         Matrix::error = -3;
         return Matrix();

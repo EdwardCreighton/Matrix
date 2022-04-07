@@ -133,32 +133,23 @@ int main()
     cout << matrix11 << endl;*/
 
     // LU decomposition
-    unsigned int size = 3;
+    /*unsigned int size = 3;
 
     Matrix matrixA(size);
 
-    matrixA.SetValue(0, 0, 10);
-    matrixA.SetValue(0, 1, -7);
-    matrixA.SetValue(0, 2, 0);
-    matrixA.SetValue(1, 0, -3);
-    matrixA.SetValue(1, 1, 6);
-    matrixA.SetValue(1, 2, 2);
-    matrixA.SetValue(2, 0, 5);
-    matrixA.SetValue(2, 1, -1);
-    matrixA.SetValue(2, 2, 5);
-
-    /*matrixA.SetValue(0, 0, 4.0);
-    matrixA.SetValue(0, 1, 3.0);
-    matrixA.SetValue(1, 0, 6.0);
-    matrixA.SetValue(1, 1, 3.0);*/
+    string values = "10 -7 0 -3 6 2 5 -1 5";
+    matrixA.SetValues(values);
 
     cout << "Matrix A" << endl << matrixA << endl;
 
     Matrix matrixU(size);
     Matrix matrixL(size);
 
-    Matrix::ComputeLUFactorization(matrixA, matrixL, matrixU);
+    Matrix::LUD(matrixA, matrixL, matrixU);
 
     cout << "Matrix U" << endl << matrixU << endl;
     cout << "Matrix L" << endl << matrixL << endl;
+
+    Matrix mMatrix = matrixL * matrixU;
+    cout << "Matrix Multiplication" << endl << mMatrix << endl;*/
 }

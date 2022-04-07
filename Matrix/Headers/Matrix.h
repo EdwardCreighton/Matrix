@@ -1,7 +1,8 @@
 #ifndef MATRIX_MATRIX_H
 #define MATRIX_MATRIX_H
 
-#include <iostream>
+#include <iostream> // for "cout" and "string"
+#include <sstream> // for "basic_istringstream"
 
 using namespace std;
 
@@ -15,7 +16,7 @@ private:
     double* pMatrix;
 
     /// \Computations
-    /// -11: singular matrix;
+    /// -11: not corresponding matrices;
     /// -10: non-square matrix;
     /// \Regular
     /// -4: index out of range;
@@ -63,7 +64,7 @@ public:
     }
 
     // Matrix interface
-    void ResizeMatrix(int newLines = 0, int newColumns = 0);
+    void ResizeMatrix(unsigned int newLines = 0, unsigned int newColumns = 0);
 
     void SetValue(int lineIndex = 0, int columnIndex = 0, double value = 0.0)
     {
@@ -77,6 +78,7 @@ public:
                               ClampValue(columnIndex, columns - 1))]
                               = value;
     }
+    void SetValues(const string& values);
     double GetValue(int lineIndex = 0, int columnIndex = 0) const
     {
         if (linLength == 0)
@@ -90,7 +92,7 @@ public:
     }
 
     // Matrix computations
-    static void ComputeLUFactorization(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
+    static void LUD(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
 
     // Operators' overloading
     Matrix& operator=(const Matrix& rightMatrix);
@@ -99,6 +101,7 @@ public:
     Matrix& operator+=(const Matrix &otherMatrix);
     Matrix& operator-=(const Matrix &otherMatrix);
     Matrix& operator*=(double value);
+    Matrix& operator*=(const Matrix& otherMatrix);
     Matrix& operator/=(double value);
 
     friend ostream& operator<<(ostream& os, const Matrix& matrix);
@@ -108,6 +111,7 @@ public:
 
     friend Matrix operator*(const Matrix &matrix, double scalarValue);
     friend Matrix operator*(double scalarValue, const Matrix &matrix);
+    friend Matrix operator*(const Matrix &matrixLeft, const Matrix& matrixRight);
     friend Matrix operator/(const Matrix &matrix, double scalarValue);
 };
 

@@ -100,7 +100,7 @@ void Matrix::InitZeros()
     }
 }
 
-void Matrix::ResizeMatrix(int newLines, int newColumns)
+void Matrix::ResizeMatrix(unsigned int newLines, unsigned int newColumns)
 {
     if (lines == newLines && columns == newColumns) return;
 
@@ -146,7 +146,24 @@ void Matrix::ResizeMatrix(int newLines, int newColumns)
     InitZeros();
 }
 
-void Matrix::ComputeLUFactorization(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU)
+void Matrix::SetValues(const string& values)
+{
+    if (values == " " || values.empty()) return;
+
+    basic_istringstream<char> stream;
+    stream.str(values);
+
+    int counter = 0;
+    for (string line; getline(stream, line, ' ');)
+    {
+        pMatrix[counter] = stod(line);
+        ++counter;
+
+        if (counter == linLength) return;
+    }
+}
+
+void Matrix::LUD(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU)
 {
     if (!MatricesEqual(matrixA, matrixL) || !MatricesEqual(matrixA, matrixU))
     {
@@ -157,12 +174,6 @@ void Matrix::ComputeLUFactorization(const Matrix &matrixA, Matrix &matrixL, Matr
     if (matrixA.lines != matrixA.columns)
     {
         error = -10;
-        return;
-    }
-
-    if (matrixA.pMatrix[0] == 0)
-    {
-        error = -11;
         return;
     }
 
@@ -302,6 +313,44 @@ Matrix &Matrix::operator*=(double value)
     return *this;
 }
 
+Matrix &Matrix::operator*=(const Matrix &otherMatrix)
+{
+    if (this->columns != otherMatrix.lines)
+    {
+        error = -11;
+        return *this;
+    }
+
+    //Matrix dotProduct(lines, otherMatrix.columns);
+    /*double value;
+
+    for (int lineIndex = 0; lineIndex < dotProduct.lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < dotProduct.columns; ++columnIndex)
+        {
+            value = 0.0;
+
+            for (int i = 0; i < columns; ++i)
+            {
+                value += GetValue(lineIndex, i) * otherMatrix.GetValue(i, columnIndex);
+            }
+
+            dotProduct.SetValue(lineIndex, columnIndex, value);
+        }
+    }*/
+
+    Matrix dotProduct = (*this) * otherMatrix;
+
+    ResizeMatrix(dotProduct.lines, dotProduct.columns);
+
+    for (int i = 0; i < this->linLength; ++i)
+    {
+        this->pMatrix[i] = dotProduct.pMatrix[i];
+    }
+
+    return *this;
+}
+
 Matrix &Matrix::operator/=(double value)
 {
     for (int i = 0; i < linLength; ++i)
@@ -374,6 +423,35 @@ Matrix operator*(const Matrix &matrix, double scalarValue)
 Matrix operator*(double scalarValue, const Matrix &matrix)
 {
     return matrix * scalarValue;
+}
+
+Matrix operator*(const Matrix &matrixLeft, const Matrix &matrixRight)
+{
+    if (matrixLeft.columns != matrixRight.lines)
+    {
+        Matrix::error = -11;
+        return Matrix();
+    }
+
+    Matrix dotProduct(matrixLeft.lines, matrixRight.columns);
+    double value;
+
+    for (int lineIndex = 0; lineIndex < dotProduct.lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < dotProduct.columns; ++columnIndex)
+        {
+            value = 0.0;
+
+            for (int i = 0; i < matrixLeft.columns; ++i)
+            {
+                value += matrixLeft.GetValue(lineIndex, i) * matrixRight.GetValue(i, columnIndex);
+            }
+
+            dotProduct.SetValue(lineIndex, columnIndex, value);
+        }
+    }
+
+    return dotProduct;
 }
 
 Matrix operator/(const Matrix &matrix, double scalarValue)

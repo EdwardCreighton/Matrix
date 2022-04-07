@@ -10,5 +10,6 @@ Available features:
   - Add matrices
   - Subtract matrices
   - Multiply matrix and double-type value (or in different order)
+  - Matrices Dot-Product
   
-  - LU-factorization
+  - LU-Decomposition

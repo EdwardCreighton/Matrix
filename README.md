@@ -4,6 +4,7 @@ Custom implementaion of matrix class
 Available features:
   - Create matrix with double-type values
   - Set particular values
+  - Set all values with a string
   - Get particular values
   - Print full matrix in console with << operataror
   
@@ -13,3 +14,4 @@ Available features:
   - Matrices Dot-Product
   
   - LU-Decomposition
+  - Cholesky decomposition

@@ -3,6 +3,7 @@
 
 #include <iostream> // for "cout" and "string"
 #include <sstream> // for "basic_istringstream"
+#include <cmath>
 
 using namespace std;
 
@@ -26,6 +27,8 @@ private:
     /// 0: no errors;
     static int error;
 
+    static const double FloatEps;
+
     inline static unsigned int ClampValue(unsigned int value, unsigned int maxValue)
     {
         if (value > maxValue) return maxValue;
@@ -40,6 +43,11 @@ private:
     {
         return linLength;
     }
+
+    // Internal computations
+    static void LUD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
+    static void ChD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
+    static void ChD2(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
 
     void InitZeros();
 
@@ -61,6 +69,23 @@ public:
     inline static bool MatricesEqual(const Matrix &matrixA, const Matrix &matrixB)
     {
         return matrixA.lines == matrixB.lines && matrixA.columns == matrixB.columns;
+    }
+    inline static bool CheckSymmetric(const Matrix& matrix)
+    {
+        if (matrix.lines != matrix.columns) return false;
+
+        for (int lineIndex = 0; lineIndex < matrix.lines; ++lineIndex)
+        {
+            for (int columnIndex = 0; columnIndex < matrix.columns; ++columnIndex)
+            {
+                if (matrix.GetValue(lineIndex, columnIndex) - matrix.GetValue(columnIndex, lineIndex) > FloatEps)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     // Matrix interface
@@ -92,7 +117,7 @@ public:
     }
 
     // Matrix computations
-    static void LUD(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
+    static void MatrixDecomposition(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
 
     // Operators' overloading
     Matrix& operator=(const Matrix& rightMatrix);

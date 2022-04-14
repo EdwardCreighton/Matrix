@@ -47,7 +47,6 @@ private:
     // Internal computations
     static void LUD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
     static void ChD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
-    static void ChD2(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
 
     void InitZeros();
 
@@ -118,6 +117,11 @@ public:
 
     // Matrix computations
     static void MatrixDecomposition(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
+    void LUDecomposition(Matrix &matrixL, Matrix &matrixU) const;
+    double Det() const;
+    static double Det(const Matrix &matrixU);
+    Matrix SolveLU(const Matrix &matrixF) const;
+    Matrix InvLU() const;
 
     // Operators' overloading
     Matrix& operator=(const Matrix& rightMatrix);

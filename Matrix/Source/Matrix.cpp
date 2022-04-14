@@ -148,58 +148,6 @@ void Matrix::LUD(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU)
 
 void Matrix::ChD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU)
 {
-    double value = sqrt(matrixA.GetValue());
-
-    matrixL.SetValue(0, 0, value);
-
-    for (int i = 1; i < matrixL.lines; ++i)
-    {
-        value = matrixA.GetValue(i, 0) / matrixL.GetValue();
-        matrixL.SetValue(i, 0, value);
-    }
-    
-    double sum;
-
-    for (int i = 1; i < matrixL.lines; ++i)
-    {
-        sum = 0.0;
-
-        for (int p = 0; p < i; ++p)
-        {
-            sum += pow(matrixL.GetValue(i, p), 2);
-        }
-        
-        value = sqrt(matrixA.GetValue(i, i) - sum);
-        matrixL.SetValue(i, i, value);
-    }
-
-    for (int i = 1; i < matrixL.lines - 1; ++i)
-    {
-        for (int j = i + 1; j < matrixL.columns; ++j)
-        {
-            sum = 0.0;
-
-            for (int p = 0; p < i; ++p)
-            {
-                sum += matrixL.GetValue(i, p) * matrixL.GetValue(j, p);
-            }
-
-            value = (1 / matrixL.GetValue(i, i)) * (matrixA.GetValue(j, i) - sum);
-            matrixL.SetValue(j, i, value);
-        }
-    }
-
-    for (int i = 0; i < matrixL.lines; ++i)
-    {
-        for (int j = 0; j < matrixL.columns; ++j)
-        {
-            matrixU.SetValue(i, j, matrixL.GetValue(j, i));
-        }
-    }
-}
-
-void Matrix::ChD2(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU)
-{
     unsigned int size = matrixL.lines;
     double value;
     double sum;
@@ -338,13 +286,164 @@ void Matrix::MatrixDecomposition(const Matrix &matrixA, Matrix &matrixL, Matrix 
         if (flag)
         {
             // Cholesky decomposition algorithm
-            ChD2(matrixA, matrixL, matrixU);
+            ChD(matrixA, matrixL, matrixU);
             return;
         }
     }
 
     // Standard decomposition algorithm
     LUD(matrixA, matrixL, matrixU);
+}
+
+void Matrix::LUDecomposition(Matrix &matrixL, Matrix &matrixU) const
+{
+    if (!MatricesEqual(*this, matrixL) || !MatricesEqual(*this, matrixU))
+    {
+        error = -3;
+        return;
+    }
+
+    if (lines != columns)
+    {
+        error = -10;
+        return;
+    }
+
+    // Init triangular matrices
+    for (int lineIndex = 0; lineIndex < lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < lines; ++columnIndex)
+        {
+            matrixU.SetValue(lineIndex, columnIndex, 0.0);
+
+            if (lineIndex == columnIndex)
+            {
+                matrixL.SetValue(lineIndex, columnIndex, 1.0);
+            }
+            else
+            {
+                matrixL.SetValue(lineIndex, columnIndex, 0.0);
+            }
+        }
+    }
+
+    double sum;
+    double value;
+
+    for (int lineIndex = 0; lineIndex < lines; ++lineIndex)
+    {
+        for (int columnIndex = 0; columnIndex < lines; ++columnIndex)
+        {
+            sum = 0.0;
+
+            if (lineIndex <= columnIndex)
+            {
+                for (int k = 0; k < lineIndex; ++k)
+                {
+                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
+                }
+
+                value = GetValue(lineIndex, columnIndex) - sum;
+                matrixU.SetValue(lineIndex, columnIndex, value);
+            }
+            else
+            {
+                for (int k = 0; k < columnIndex; ++k)
+                {
+                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
+                }
+
+                value = (GetValue(lineIndex, columnIndex) - sum) / matrixU.GetValue(columnIndex, columnIndex);
+                matrixL.SetValue(lineIndex, columnIndex, value);
+            }
+        }
+    }
+}
+
+double Matrix::Det() const
+{
+    if (this->lines != this->columns)
+    {
+        error = -10;
+        return 0.0;
+    }
+
+    Matrix matrixL(lines);
+    Matrix matrixU(lines);
+
+    LUDecomposition(matrixL, matrixU);
+
+    double det = matrixU.pMatrix[0];
+
+    for (int i = 1; i < matrixU.lines; ++i)
+    {
+        det *= matrixU.GetValue(i, i);
+    }
+
+    return det;
+}
+
+double Matrix::Det(const Matrix &matrixU)
+{
+    if (matrixU.lines != matrixU.columns)
+    {
+        error = -10;
+        return 0.0;
+    }
+
+    double det = matrixU.pMatrix[0];
+
+    for (int i = 1; i < matrixU.lines; ++i)
+    {
+        det *= matrixU.GetValue(i, i);
+    }
+
+    return det;
+}
+
+Matrix Matrix::SolveLU(const Matrix &matrixF) const
+{
+    if (lines != columns)
+    {
+        error = -10;
+        return Matrix();
+    }
+
+    unsigned int size = lines;
+
+    Matrix matrixL(size);
+    Matrix matrixU(size);
+
+    LUDecomposition(matrixL, matrixU);
+
+    Matrix matrixY(size, 1);
+    double sum;
+
+    for (int i = 0; i < size; ++i)
+    {
+        sum = 0.0;
+        for (int j = 0; j < i; ++j)
+        {
+            sum += matrixL.GetValue(i, j) * matrixY.pMatrix[j];
+        }
+        
+        matrixY.pMatrix[i] = matrixF.pMatrix[i] - sum;
+    }
+
+    Matrix matrixX(size, 1);
+
+    for (int i = size - 1; i >= 0; --i)
+    {
+        sum = 0.0;
+        for (int j = i + 1; j < size; ++j)
+        {
+            sum += matrixU.GetValue(i, j) * matrixX.pMatrix[j];
+        }
+
+        matrixX.pMatrix[i] = (matrixY.pMatrix[i] - sum) / matrixU.GetValue(i, i);
+    }
+
+    return matrixX;
 }
 
 Matrix &Matrix::operator=(const Matrix &rightMatrix)

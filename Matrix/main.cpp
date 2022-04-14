@@ -57,7 +57,7 @@ int main()
     Matrix matrix7 = matrix5 + matrix6;
     cout << matrix7 << endl;*/
 
-    // Add Matrices (variant 2)
+    // Add Matrices (method 2)
     /*Matrix matrix5(3, 3);
     Matrix matrix6(3, 3);
 
@@ -93,7 +93,7 @@ int main()
     matrix8 = matrix8 * 3;
     cout << matrix8 << endl;*/
 
-    // Multiply Matrix with scalar (variant 2)
+    // Multiply Matrix with scalar (method 2)
     /*Matrix matrix8(3, 3);
 
     double value = 5;
@@ -132,8 +132,8 @@ int main()
 
     cout << matrix11 << endl;*/
 
-    // LU decomposition
-    unsigned int size = 3;
+    // LU Decomposition
+    /*unsigned int size = 3 ;
 
     Matrix matrixA(size);
 
@@ -146,11 +146,46 @@ int main()
     Matrix matrixU(size);
     Matrix matrixL(size);
 
-    Matrix::MatrixDecomposition(matrixA, matrixL, matrixU);
+    //Matrix::MatrixDecomposition(matrixA, matrixL, matrixU);
+    matrixA.LUDecomposition(matrixL, matrixU);
 
     cout << "Matrix U" << endl << matrixU << endl;
     cout << "Matrix L" << endl << matrixL << endl;
 
     Matrix mMatrix = matrixL * matrixU;
-    cout << "Matrix Multiplication" << endl << mMatrix << endl;
+    cout << "Matrix Multiplication" << endl << mMatrix << endl;*/
+
+    // Det
+    /*int size = 3;
+    Matrix matrixA(size);
+
+    string values = "4 2 3 2 5 1 3 1 6";
+    matrixA.SetValues(values);
+
+    // I-method
+    cout << matrixA.Det() << endl;
+
+    Matrix matrixL(size);
+    Matrix matrixU(size);
+
+    matrixA.LUDecomposition(matrixL, matrixU);
+
+    // II-method
+    cout << Matrix::Det(matrixU) << endl;*/
+
+    // Solver
+    /*unsigned int size = 3;
+    Matrix matrixA(size);
+    Matrix matrixF(size, 1);
+
+    string aValues = "4 2 3 2 5 1 3 1 6";
+    matrixA.SetValues(aValues);
+    string fValues = "1 2 3";
+    matrixF.SetValues(fValues);
+
+    Matrix matrixX = matrixA.SolveLU(matrixF);
+
+    cout << "Matrix X" << endl << matrixX << endl;
+    //Matrix check = matrixA * matrixX;
+    //cout << "Check" << endl << check << endl;*/
 }

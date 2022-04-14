@@ -15,3 +15,5 @@ Available features:
   
   - LU-Decomposition
   - Cholesky decomposition
+  - Determinant
+  - Solve system of linear equations with LU-decomposition

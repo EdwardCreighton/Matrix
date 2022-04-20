@@ -186,6 +186,21 @@ int main()
     Matrix matrixX = matrixA.SolveLU(matrixF);
 
     cout << "Matrix X" << endl << matrixX << endl;
-    //Matrix check = matrixA * matrixX;
-    //cout << "Check" << endl << check << endl;*/
+    Matrix check = matrixA * matrixX;
+    cout << "Check" << endl << check << endl;*/
+
+    // Invertible matrix
+    unsigned int size = 3;
+    Matrix matrixA(size);
+
+    string aValues = "4 2 3 2 5 1 3 1 6";
+    matrixA.SetValues(aValues);
+
+    cout << "Matrix A" << endl << matrixA << endl;
+
+    Matrix invertibleMatrix = matrixA.InvLU();
+    cout << "Invertible Matrix" << endl << invertibleMatrix << endl;
+
+    Matrix check = matrixA * invertibleMatrix;
+    cout << check << endl;
 }

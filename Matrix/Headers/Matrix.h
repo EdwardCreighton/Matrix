@@ -51,7 +51,8 @@ private:
     void InitZeros();
 
 public:
-    Matrix(unsigned int lines = 0, unsigned int columns = 0);
+    Matrix();
+    Matrix(unsigned int lines, unsigned int columns = 0);
     Matrix(const Matrix& matrixOrig);
     ~Matrix();
 
@@ -120,6 +121,7 @@ public:
     void LUDecomposition(Matrix &matrixL, Matrix &matrixU) const;
     double Det() const;
     static double Det(const Matrix &matrixU);
+    /// \Form A*X=F
     Matrix SolveLU(const Matrix &matrixF) const;
     Matrix InvLU() const;
 

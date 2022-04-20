@@ -3,6 +3,14 @@
 int Matrix::error = 0;
 const double Matrix::FloatEps = 1e-13;
 
+Matrix::Matrix()
+{
+    this->lines = 0;
+    this->columns = 0;
+    linLength = 0;
+    pMatrix = nullptr;
+}
+
 Matrix::Matrix(unsigned int lines, unsigned int columns)
 {
     if (lines != 0 && columns == 0)
@@ -10,7 +18,7 @@ Matrix::Matrix(unsigned int lines, unsigned int columns)
         columns = lines;
     }
 
-    if (lines == 0 || columns == 0)
+    /*if (lines == 0 || columns == 0)
     {
         this->lines = 0;
         this->columns = 0;
@@ -18,7 +26,7 @@ Matrix::Matrix(unsigned int lines, unsigned int columns)
         pMatrix = nullptr;
 
         return;
-    }
+    }*/
 
     linLength = columns * lines;
 
@@ -52,13 +60,13 @@ Matrix::Matrix(const Matrix &matrixOrig)
         return;
     }
 
-    if (pMatrix != nullptr)
+    /*if (pMatrix != nullptr)
     {
         delete[] pMatrix;
         lines = 0;
         columns = 0;
         linLength = 0;
-    }
+    }*/
 
     linLength = matrixOrig.lines * matrixOrig.columns;
     this->pMatrix = new double[linLength];
@@ -444,6 +452,32 @@ Matrix Matrix::SolveLU(const Matrix &matrixF) const
     }
 
     return matrixX;
+}
+
+Matrix Matrix::InvLU() const
+{
+    if (this->lines != this->columns)
+    {
+        error = -10;
+        return Matrix();
+    }
+
+    Matrix invertibleMatrix(this->lines);
+
+    for (int column = 0; column < this->lines; ++column)
+    {
+        Matrix columnMatrix(this->lines, 1);
+        columnMatrix.pMatrix[column] = 1;
+
+        columnMatrix = SolveLU(columnMatrix);
+
+        for (int lineIndex = 0; lineIndex < this->lines; ++lineIndex)
+        {
+            invertibleMatrix.SetValue(lineIndex, column, columnMatrix.pMatrix[lineIndex]);
+        }
+    }
+
+    return invertibleMatrix;
 }
 
 Matrix &Matrix::operator=(const Matrix &rightMatrix)

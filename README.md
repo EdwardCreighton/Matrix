@@ -18,3 +18,4 @@ Custom implementaion of matrix class
   - Cholesky decomposition
   - Determinant
   - Solve system of linear equations with LU-decomposition
+  - Get invertible matrix

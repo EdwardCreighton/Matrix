@@ -183,7 +183,10 @@ int main()
     string fValues = "1 2 3";
     matrixF.SetValues(fValues);
 
-    Matrix matrixX = matrixA.SolveLU(matrixF);
+    double det;
+    Matrix matrixX = matrixA.SolveLU(matrixF, &det);
+
+    cout << "Det: " << det << endl;
 
     cout << "Matrix X" << endl << matrixX << endl;
     Matrix check = matrixA * matrixX;
@@ -198,9 +201,13 @@ int main()
 
     cout << "Matrix A" << endl << matrixA << endl;
 
-    Matrix invertibleMatrix = matrixA.InvLU();
+    double det;
+
+    Matrix invertibleMatrix = matrixA.InvLU(&det);
+    cout << "Det Inv: " << det << endl;
+    cout << "Det: " << 1 / det << endl << endl;
     cout << "Invertible Matrix" << endl << invertibleMatrix << endl;
 
     Matrix check = matrixA * invertibleMatrix;
-    cout << check << endl;
+    cout << "Check" << endl << check << endl;
 }

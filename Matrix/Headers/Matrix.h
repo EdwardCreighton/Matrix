@@ -122,8 +122,8 @@ public:
     double Det() const;
     static double Det(const Matrix &matrixU);
     /// \Form A*X=F
-    Matrix SolveLU(const Matrix &matrixF) const;
-    Matrix InvLU() const;
+    Matrix SolveLU(const Matrix &matrixF, double *pDet = nullptr) const;
+    Matrix InvLU(double *pDet= nullptr) const;
 
     // Operators' overloading
     Matrix& operator=(const Matrix& rightMatrix);

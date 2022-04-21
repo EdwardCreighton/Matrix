@@ -60,14 +60,6 @@ Matrix::Matrix(const Matrix &matrixOrig)
         return;
     }
 
-    /*if (pMatrix != nullptr)
-    {
-        delete[] pMatrix;
-        lines = 0;
-        columns = 0;
-        linLength = 0;
-    }*/
-
     linLength = matrixOrig.lines * matrixOrig.columns;
     this->pMatrix = new double[linLength];
 
@@ -409,7 +401,7 @@ double Matrix::Det(const Matrix &matrixU)
     return det;
 }
 
-Matrix Matrix::SolveLU(const Matrix &matrixF) const
+Matrix Matrix::SolveLU(const Matrix &matrixF, double *pDet) const
 {
     if (lines != columns)
     {
@@ -423,6 +415,11 @@ Matrix Matrix::SolveLU(const Matrix &matrixF) const
     Matrix matrixU(size);
 
     LUDecomposition(matrixL, matrixU);
+
+    if (pDet != nullptr)
+    {
+        *pDet = Det(matrixU);
+    }
 
     Matrix matrixY(size, 1);
     double sum;
@@ -454,7 +451,7 @@ Matrix Matrix::SolveLU(const Matrix &matrixF) const
     return matrixX;
 }
 
-Matrix Matrix::InvLU() const
+Matrix Matrix::InvLU(double *pDet) const
 {
     if (this->lines != this->columns)
     {
@@ -477,31 +474,37 @@ Matrix Matrix::InvLU() const
         }
     }
 
+    if (pDet != nullptr)
+    {
+        *pDet = invertibleMatrix.Det();
+    }
+
     return invertibleMatrix;
 }
 
 Matrix &Matrix::operator=(const Matrix &rightMatrix)
 {
-    if (pMatrix != nullptr)
+    if (!MatricesEqual(*this, rightMatrix))
     {
-        delete[] pMatrix;
-        lines = 0;
-        columns = 0;
+        if (pMatrix != nullptr)
+        {
+            delete[] pMatrix;
+        }
+
+        linLength = rightMatrix.lines * rightMatrix.columns;
+        pMatrix = new double[linLength];
+
+        if (pMatrix == nullptr)
+        {
+            error = -1;
+            linLength = 0;
+
+            return *this;
+        }
+
+        this->lines = rightMatrix.lines;
+        this->columns = rightMatrix.columns;
     }
-
-    linLength = rightMatrix.lines * rightMatrix.columns;
-    pMatrix = new double[linLength];
-
-    if (pMatrix == nullptr)
-    {
-        error = -1;
-        linLength = 0;
-
-        return *this;
-    }
-
-    this->lines = rightMatrix.lines;
-    this->columns = rightMatrix.columns;
 
     for (int i = 0; i < linLength; ++i)
     {

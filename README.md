@@ -1,5 +1,5 @@
 # Matrix
-Custom implementaion of matrix class
+Custom implementation of matrix class
 
 ## Available features:
 ### Standard methods
@@ -8,14 +8,15 @@ Custom implementaion of matrix class
   - Set all values with a string
   - Get particular values
   - Print full matrix in console with << operataror
-### Mathemetical Methods
+### Standard Mathematics
   - Add matrices
   - Subtract matrices
   - Multiply matrix and double-type value (or in different order)
   - Matrices Dot-Product
-### Advanced Mathemetics
-  - LU-Decomposition
-  - Cholesky decomposition
+### Advanced Mathematics
+  - LU Decomposition
+  - LU-Cholesky decomposition
+  - QR-Givens Decomposition
   - Determinant
   - Solve system of linear equations with LU-decomposition
   - Get invertible matrix

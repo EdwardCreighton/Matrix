@@ -48,6 +48,8 @@ private:
     static void LUD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
     static void ChD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU);
 
+    static void GivensRotation(double a, double b, double &c, double &s);
+
     void InitZeros();
 
 public:
@@ -119,11 +121,13 @@ public:
     // Matrix computations
     static void MatrixDecomposition(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU);
     void LUDecomposition(Matrix &matrixL, Matrix &matrixU) const;
+    void QR_Givens(Matrix &matrixQ, Matrix &matrixR) const;
     double Det() const;
     static double Det(const Matrix &matrixU);
     /// \Form A*X=F
     Matrix SolveLU(const Matrix &matrixF, double *pDet = nullptr) const;
     Matrix InvLU(double *pDet= nullptr) const;
+
 
     // Operators' overloading
     Matrix& operator=(const Matrix& rightMatrix);

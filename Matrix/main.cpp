@@ -193,7 +193,7 @@ int main()
     cout << "Check" << endl << check << endl;*/
 
     // Invertible matrix
-    unsigned int size = 3;
+    /*unsigned int size = 3;
     Matrix matrixA(size);
 
     string aValues = "4 2 3 2 5 1 3 1 6";
@@ -209,5 +209,25 @@ int main()
     cout << "Invertible Matrix" << endl << invertibleMatrix << endl;
 
     Matrix check = matrixA * invertibleMatrix;
-    cout << "Check" << endl << check << endl;
+    cout << "Check" << endl << check << endl;*/
+
+    //QR-Givens decomposition
+    /*unsigned int size = 3;
+    Matrix matrixA(size);
+
+    string aValues = "4 2 3 2 5 1 3 1 6";
+    //string aValues = "2 0 1 6 2 0 -3 1 -1";
+    matrixA.SetValues(aValues);
+
+    cout << "Matrix A" << endl << matrixA << endl;
+
+    Matrix matrixQ(size);
+    Matrix matrixR(size);
+
+    matrixA.QR_Givens(matrixQ, matrixR);
+    cout << "MatrixQ" << endl << matrixQ << endl;
+    cout << "MatrixR" << endl << matrixR << endl;
+
+    Matrix check = matrixQ * matrixR;
+    cout << "Check" << endl << check << endl;*/
 }

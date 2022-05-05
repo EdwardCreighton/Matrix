@@ -212,11 +212,11 @@ int main()
     cout << "Check" << endl << check << endl;*/
 
     //QR-Givens decomposition
-    /*unsigned int size = 3;
+    unsigned int size = 3;
     Matrix matrixA(size);
 
-    string aValues = "4 2 3 2 5 1 3 1 6";
-    //string aValues = "2 0 1 6 2 0 -3 1 -1";
+    //string aValues = "4 2 3 2 5 1 3 1 6";
+    string aValues = "2 0 1 6 2 0 0 1 -1";
     matrixA.SetValues(aValues);
 
     cout << "Matrix A" << endl << matrixA << endl;
@@ -229,5 +229,5 @@ int main()
     cout << "MatrixR" << endl << matrixR << endl;
 
     Matrix check = matrixQ * matrixR;
-    cout << "Check" << endl << check << endl;*/
+    cout << "Check" << endl << check << endl;
 }

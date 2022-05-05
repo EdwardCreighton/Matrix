@@ -187,30 +187,17 @@ void Matrix::ChD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU)
 
 void Matrix::GivensRotation(double current, double upper, double &c, double &s)
 {
-    /*if (b == 0)
+    if (abs(upper) < FloatEps)
     {
-        c = 1;
-        s = 0;
+        c = 0;
+        s = 1;
     }
     else
     {
-        if (abs(b) > abs(a))
-        {
-            double r = a / b;
-            s = 1 / sqrt(1 + r * r);
-            c = s * r;
-        }
-        else
-        {
-            double r = b / a;
-            c = 1 / sqrt(1 + r * r);
-            s = c * r;
-        }
-    }*/
-
-    double radius = sqrt(current * current + upper * upper);
-    c = upper / radius;
-    s = -current / radius;
+        double radius = sqrt(current * current + upper * upper);
+        c = upper / radius;
+        s = -current / radius;
+    }
 }
 
 void Matrix::InitZeros()
@@ -422,6 +409,11 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
     {
         for (int line = size - 1; line > column; --line)
         {
+            if (abs(matrixR.GetValue(line, column)) < FloatEps)
+            {
+                continue;
+            }
+
             Matrix matrixG(size);
             for (int i = 0; i < size; ++i)
             {
@@ -454,59 +446,6 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
             matrixR = matrixG * matrixR;
         }
     }
-
-    /*for (int i = 0; i < size; ++i)
-    {
-        for (int j = size - 1; j > i + 1; --j)
-        {
-            Matrix matrixG(size);
-
-            for (int k = 0; k < size; ++k)
-            {
-                for (int l = 0; l < size; ++l)
-                {
-                    if (k == l) matrixG.SetValue(k, l, 1.0);
-                    else matrixG.SetValue(k, l, 0.0);
-                }
-            }
-
-            double cos;
-            double sin;
-            GivensRotation(matrixR.GetValue(i - 1, j), matrixR.GetValue(i, j), cos, sin);
-
-            matrixG.SetValue(i - 1, i - 1, cos);
-            matrixG.SetValue(i - 1, i, sin);
-            matrixG.SetValue(i, i - 1, -sin);
-            matrixG.SetValue(i - 1, i, cos);
-
-            matrixQ = matrixQ * matrixG;
-
-            for (int k = 0; k < size; ++k)
-            {
-                for (int l = 0; l < size; ++l)
-                {
-                    double val = matrixG.GetValue(k, l);
-                    matrixG.SetValue(k, l, matrixG.GetValue(l, k));
-                    matrixG.SetValue(l, k, val);
-                }
-            }
-
-            matrixR = matrixG * matrixR;
-        }
-    }*/
-
-    /*for (int i = 0; i < size; ++i)
-    {
-        for (int j = 0; j < size; ++j)
-        {
-            if (matrixR.GetValue(i, j) != 0.0)
-            {
-                double radius = sqrt(matrixR.GetValue(j, j) * matrixR.GetValue(j, j) + matrixR.GetValue(i, j) * matrixR.GetValue(i, j));
-                double cos = matrixR.GetValue(j, j) / radius;
-                double sin = matrixR.GetValue(i, j) / radius;
-            }
-        }
-    }*/
 }
 
 double Matrix::Det() const

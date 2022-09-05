@@ -5,27 +5,20 @@ int main()
     // Print Matrix
     /*Matrix matrix1(5);
 
-    double value = 1;
-
-    for (int line = 0; line < 5; ++line)
-    {
-        for (int column = 0; column < 5; ++column)
-        {
-            matrix1.SetValue(line, column, value);
-
-            ++value;
-        }
-    }
+    string values = "4 2 3 2 5 1 3 1 6";
+    matrix1.SetValues(values);
 
     cout << matrix1 << endl;*/
 
     // Get/Set values
     /*Matrix matrix2(5, 5);
 
-    cout << matrix2.GetValue(3, 3) << endl;
+    //cout << matrix2.GetValue(3, 3) << endl;
+    cout << matrix2(3, 3) << endl;
 
     double value = 45;
-    matrix2.SetValue(3, 3, value);
+    //matrix2.SetValue(3, 3, value);
+    matrix2(3,3) = value;
 
     cout << matrix2 << endl;*/
 
@@ -41,18 +34,10 @@ int main()
     /*Matrix matrix5(3, 3);
     Matrix matrix6(3, 3);
 
-    double value = 1;
+    string values = "1 2 3 4 5 6 7 8 9";
 
-    for (int line = 0; line < 3; ++line)
-    {
-        for (int column = 0; column < 3; ++column)
-        {
-            matrix5.SetValue(line, column, value);
-            matrix6.SetValue(line, column,value);
-
-            ++value;
-        }
-    }
+    matrix5.SetValues(values);
+    matrix6.SetValues(values);
 
     Matrix matrix7 = matrix5 + matrix6;
     cout << matrix7 << endl;*/
@@ -61,18 +46,10 @@ int main()
     /*Matrix matrix5(3, 3);
     Matrix matrix6(3, 3);
 
-    double value = 1;
+    string values = "1 2 3 4 5 6 7 8 9";
 
-    for (int line = 0; line < 3; ++line)
-    {
-        for (int column = 0; column < 3; ++column)
-        {
-            matrix5.SetValue(line, column, value);
-            matrix6.SetValue(line, column,value);
-
-            ++value;
-        }
-    }
+    matrix5.SetValues(values);
+    matrix6.SetValues(values);
 
     matrix5 += matrix6;
     cout << matrix5 << endl;*/
@@ -80,15 +57,8 @@ int main()
     // Multiply Matrix with scalar
     /*Matrix matrix8(3, 3);
 
-    double value = 5;
-
-    for (int line = 0; line < 3; ++line)
-    {
-        for (int column = 0; column < 3; ++column)
-        {
-            matrix8.SetValue(line, column, value);
-        }
-    }
+    string values = "1 2 3 4 5 6 7 8 9";
+    matrix8.SetValues(values);
 
     matrix8 = matrix8 * 3;
     cout << matrix8 << endl;*/
@@ -96,15 +66,8 @@ int main()
     // Multiply Matrix with scalar (method 2)
     /*Matrix matrix8(3, 3);
 
-    double value = 5;
-
-    for (int line = 0; line < 3; ++line)
-    {
-        for (int column = 0; column < 3; ++column)
-        {
-            matrix8.SetValue(line, column, value);
-        }
-    }
+    string values = "1 2 3 4 5 6 7 8 9";
+    matrix8.SetValues(values);
 
     matrix8 *= 3;
     cout << matrix8 << endl;
@@ -116,17 +79,10 @@ int main()
     /*Matrix matrix9(3, 3);
     Matrix matrix10(3, 3);
 
-    double value = 1;
+    string values = "1 2 3 4 5 6 7 8 9";
 
-    for (int line = 0; line < 3; ++line)
-    {
-        for (int column = 0; column < 3; ++column)
-        {
-            matrix9.SetValue(line, column, value);
-            matrix10.SetValue(line, column, value);
-            ++value;
-        }
-    }
+    matrix9.SetValues(values);
+    matrix10.SetValues(values);
 
     Matrix matrix11 = matrix9 - matrix10;
 
@@ -147,7 +103,7 @@ int main()
     Matrix matrixL(size);
 
     //Matrix::MatrixDecomposition(matrixA, matrixL, matrixU);
-    matrixA.LUDecomposition(matrixL, matrixU);
+    matrixA.LU(matrixL, matrixU);
 
     cout << "Matrix U" << endl << matrixU << endl;
     cout << "Matrix L" << endl << matrixL << endl;
@@ -155,7 +111,7 @@ int main()
     Matrix mMatrix = matrixL * matrixU;
     cout << "Matrix Multiplication" << endl << mMatrix << endl;*/
 
-    // Det
+    // DetLU
     /*int size = 3;
     Matrix matrixA(size);
 
@@ -163,17 +119,17 @@ int main()
     matrixA.SetValues(values);
 
     // I-method
-    cout << matrixA.Det() << endl;
+    cout << matrixA.DetLU() << endl;
 
     Matrix matrixL(size);
     Matrix matrixU(size);
 
-    matrixA.LUDecomposition(matrixL, matrixU);
+    matrixA.LU(matrixL, matrixU);
 
     // II-method
-    cout << Matrix::Det(matrixU) << endl;*/
+    cout << Matrix::DetLU(matrixU) << endl;*/
 
-    // Solver
+    // Solver LU
     /*unsigned int size = 3;
     Matrix matrixA(size);
     Matrix matrixF(size, 1);
@@ -186,13 +142,13 @@ int main()
     double det;
     Matrix matrixX = matrixA.SolveLU(matrixF, &det);
 
-    cout << "Det: " << det << endl;
+    cout << "DetLU: " << det << endl;
 
     cout << "Matrix X" << endl << matrixX << endl;
     Matrix check = matrixA * matrixX;
     cout << "Check" << endl << check << endl;*/
 
-    // Invertible matrix
+    // Invertible matrix LU
     /*unsigned int size = 3;
     Matrix matrixA(size);
 
@@ -204,19 +160,20 @@ int main()
     double det;
 
     Matrix invertibleMatrix = matrixA.InvLU(&det);
-    cout << "Det Inv: " << det << endl;
-    cout << "Det: " << 1 / det << endl << endl;
+    cout << "DetLU Inv: " << det << endl;
+    cout << "DetLU: " << 1 / det << endl << endl;
     cout << "Invertible Matrix" << endl << invertibleMatrix << endl;
 
     Matrix check = matrixA * invertibleMatrix;
     cout << "Check" << endl << check << endl;*/
 
     //QR-Givens decomposition
-    unsigned int size = 3;
+    /*unsigned int size = 3;
     Matrix matrixA(size);
 
-    //string aValues = "4 2 3 2 5 1 3 1 6";
-    string aValues = "2 0 1 6 2 0 0 1 -1";
+    string aValues = "4 2 3 2 5 1 3 1 6";
+    //string aValues = "10 -7 0 -3 6 2 5 -1 5 4 0 3 7 -4 9 2 -1 6 1 8 -3 2 6 2 5 -1 4 0 3 7 -1 6 1 -3 2 6 0 3 7 -1 5 4 0 9 2 -1 6 1 2 6 2 5 2 6 2 5 -1 0 3 7 -1 5 1 6 1 8 5 2 6 2 1 -3 2 -4 9 2 -1 6 6 0 3 7 -1 5 -1 6 1 8 2 5 -1 0 3 7 1 6 1 8 5 2 6 7 -1 5 -1";
+    //string aValues = "2 0 1 6 2 0 0 1 -1";
     matrixA.SetValues(aValues);
 
     cout << "Matrix A" << endl << matrixA << endl;
@@ -229,5 +186,61 @@ int main()
     cout << "MatrixR" << endl << matrixR << endl;
 
     Matrix check = matrixQ * matrixR;
-    cout << "Check" << endl << check << endl;
+    cout << "Check" << endl << check << endl;*/
+
+    // DetQR
+    /*int size = 3;
+    Matrix matrixA(size);
+
+    string values = "4 2 3 2 5 1 3 1 6";
+    matrixA.SetValues(values);
+
+    // I-method
+    cout << matrixA.DetQR() << endl;
+
+    Matrix matrixQ(size);
+    Matrix matrixR(size);
+
+    matrixA.QR_Givens(matrixQ, matrixR);
+
+    // II-method
+    cout << Matrix::DetQR(matrixR) << endl;*/
+
+    // Solver QR
+    /*unsigned int size = 3;
+    Matrix matrixA(size);
+    Matrix matrixF(size, 1);
+
+    string aValues = "4 2 3 2 5 1 3 1 6";
+    matrixA.SetValues(aValues);
+    string fValues = "1 2 3";
+    matrixF.SetValues(fValues);
+
+    double det;
+    Matrix matrixX = matrixA.SolveQR(matrixF, &det);
+
+    cout << "DetQR: " << det << endl << endl;
+
+    cout << "Matrix X" << endl << matrixX << endl;
+    Matrix check = matrixA * matrixX;
+    cout << "Check" << endl << check << endl;*/
+
+    // Invertible matrix QR
+    /*unsigned int size = 3;
+    Matrix matrixA(size);
+
+    string aValues = "4 2 3 2 5 1 3 1 6";
+    matrixA.SetValues(aValues);
+
+    cout << "Matrix A" << endl << matrixA << endl;
+
+    double det;
+
+    Matrix invertibleMatrix = matrixA.InvQR(&det);
+    cout << "DetQR Inv: " << det << endl;
+    cout << "DetQR: " << 1 / det << endl << endl;
+    cout << "Invertible Matrix" << endl << invertibleMatrix << endl;
+
+    Matrix check = matrixA * invertibleMatrix;
+    cout << "Check" << endl << check << endl;*/
 }

@@ -1,7 +1,7 @@
 #include "../Headers/Matrix.h"
 
 int Matrix::error = 0;
-const double Matrix::FloatEps = 1e-13;
+const double Matrix::FloatEps = 1e-15;
 
 Matrix::Matrix()
 {
@@ -13,12 +13,7 @@ Matrix::Matrix()
 
 Matrix::Matrix(unsigned int lines, unsigned int columns)
 {
-    if (lines != 0 && columns == 0)
-    {
-        columns = lines;
-    }
-
-    /*if (lines == 0 || columns == 0)
+    if (lines == 0)
     {
         this->lines = 0;
         this->columns = 0;
@@ -26,7 +21,12 @@ Matrix::Matrix(unsigned int lines, unsigned int columns)
         pMatrix = nullptr;
 
         return;
-    }*/
+    }
+
+    if (columns == 0)
+    {
+        columns = lines;
+    }
 
     linLength = columns * lines;
 
@@ -90,59 +90,6 @@ Matrix::~Matrix()
         columns = 0;
         lines = 0;
         linLength = 0;
-    }
-}
-
-void Matrix::LUD(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU)
-{
-    // Init triangular matrices
-    for (int lineIndex = 0; lineIndex < matrixA.lines; ++lineIndex)
-    {
-        for (int columnIndex = 0; columnIndex < matrixA.lines; ++columnIndex)
-        {
-            matrixU.SetValue(lineIndex, columnIndex, 0.0);
-
-            if (lineIndex == columnIndex)
-            {
-                matrixL.SetValue(lineIndex, columnIndex, 1.0);
-            }
-            else
-            {
-                matrixL.SetValue(lineIndex, columnIndex, 0.0);
-            }
-        }
-    }
-
-    double sum;
-    double value;
-
-    for (int lineIndex = 0; lineIndex < matrixA.lines; ++lineIndex)
-    {
-        for (int columnIndex = 0; columnIndex < matrixA.lines; ++columnIndex)
-        {
-            sum = 0.0;
-
-            if (lineIndex <= columnIndex)
-            {
-                for (int k = 0; k < lineIndex; ++k)
-                {
-                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
-                }
-
-                value = matrixA.GetValue(lineIndex, columnIndex) - sum;
-                matrixU.SetValue(lineIndex, columnIndex, value);
-            }
-            else
-            {
-                for (int k = 0; k < columnIndex; ++k)
-                {
-                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
-                }
-
-                value = (matrixA.GetValue(lineIndex, columnIndex) - sum) / matrixU.GetValue(columnIndex, columnIndex);
-                matrixL.SetValue(lineIndex, columnIndex, value);
-            }
-        }
     }
 }
 
@@ -254,6 +201,19 @@ void Matrix::ResizeMatrix(unsigned int newLines, unsigned int newColumns)
     InitZeros();
 }
 
+void Matrix::SetValue(unsigned int lineIndex, unsigned int columnIndex, double value)
+{
+    if (linLength == 0)
+    {
+        error = -4;
+        return;
+    }
+
+    pMatrix[GetArrayIndex(ClampValue(lineIndex, lines - 1),
+                          ClampValue(columnIndex, columns - 1))]
+            = value;
+}
+
 void Matrix::SetValues(const string& values)
 {
     if (values == " " || values.empty()) return;
@@ -271,46 +231,34 @@ void Matrix::SetValues(const string& values)
     }
 }
 
-void Matrix::MatrixDecomposition(const Matrix &matrixA, Matrix &matrixL, Matrix &matrixU)
+double Matrix::GetValue(unsigned int lineIndex, unsigned int columnIndex) const
 {
-    if (!MatricesEqual(matrixA, matrixL) || !MatricesEqual(matrixA, matrixU))
+    if (linLength == 0)
     {
-        error = -3;
-        return;
+        error = -4;
+        return 0.0;
     }
 
-    if (matrixA.lines != matrixA.columns)
-    {
-        error = -10;
-        return;
-    }
-
-    if (CheckSymmetric(matrixA))
-    {
-        bool flag = true;
-
-        for (int i = 0; i < matrixA.linLength; ++i)
-        {
-            if (matrixA.pMatrix[i] < 0.0)
-            {
-                flag = !flag;
-                break;
-            }
-        }
-
-        if (flag)
-        {
-            // Cholesky decomposition algorithm
-            ChD(matrixA, matrixL, matrixU);
-            return;
-        }
-    }
-
-    // Standard decomposition algorithm
-    LUD(matrixA, matrixL, matrixU);
+    return pMatrix[GetArrayIndex(ClampValue(lineIndex, lines - 1),
+                                 ClampValue(columnIndex, columns - 1))];
 }
 
-void Matrix::LUDecomposition(Matrix &matrixL, Matrix &matrixU) const
+Matrix Matrix::Transpose() const
+{
+    Matrix T(columns, lines);
+
+    for (int k = 0; k < T.lines; ++k)
+    {
+        for (int l = 0; l < T.columns; ++l)
+        {
+            T.SetValue(k, l, GetValue(l, k));
+        }
+    }
+
+    return T;
+}
+
+void Matrix::LU(Matrix &matrixL, Matrix &matrixU) const
 {
     if (!MatricesEqual(*this, matrixL) || !MatricesEqual(*this, matrixU))
     {
@@ -375,80 +323,8 @@ void Matrix::LUDecomposition(Matrix &matrixL, Matrix &matrixU) const
     }
 }
 
-void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
-{
-    if (!MatricesEqual(*this, matrixQ) || !MatricesEqual(*this, matrixR))
-    {
-        error = -3;
-        return;
-    }
 
-    if (lines != columns)
-    {
-        error = -10;
-        return;
-    }
-
-    unsigned int size = lines;
-
-    for (int i = 0; i < size; ++i)
-    {
-        for (int j = 0; j < size; ++j)
-        {
-            if (i == j) matrixQ.SetValue(i, j, 1.0);
-            else matrixQ.SetValue(i, j, 0.0);
-        }
-    }
-
-    for (int i = 0; i < linLength; ++i)
-    {
-        matrixR.pMatrix[i] = pMatrix[i];
-    }
-
-    for (int column = 0; column < size; ++column)
-    {
-        for (int line = size - 1; line > column; --line)
-        {
-            if (abs(matrixR.GetValue(line, column)) < FloatEps)
-            {
-                continue;
-            }
-
-            Matrix matrixG(size);
-            for (int i = 0; i < size; ++i)
-            {
-                matrixG.SetValue(i, i, 1.0);
-            }
-
-            double cos;
-            double sin;
-            GivensRotation(matrixR.GetValue(line, column), matrixR.GetValue(line - 1, column), cos, sin);
-
-            int j = line;
-            int i = line -1;
-            matrixG.SetValue(i, i, cos);
-            matrixG.SetValue(i, j, sin);
-            matrixG.SetValue(j, i, -sin);
-            matrixG.SetValue(j, j, cos);
-
-            matrixQ = matrixQ * matrixG;
-
-            for (int k = 0; k < size; ++k)
-            {
-                for (int l = k; l < size; ++l)
-                {
-                    double val = matrixG.GetValue(k, l);
-                    matrixG.SetValue(k, l, matrixG.GetValue(l, k));
-                    matrixG.SetValue(l, k, val);
-                }
-            }
-
-            matrixR = matrixG * matrixR;
-        }
-    }
-}
-
-double Matrix::Det() const
+double Matrix::DetLU() const
 {
     if (this->lines != this->columns)
     {
@@ -459,31 +335,31 @@ double Matrix::Det() const
     Matrix matrixL(lines);
     Matrix matrixU(lines);
 
-    LUDecomposition(matrixL, matrixU);
+    LU(matrixL, matrixU);
 
     double det = matrixU.pMatrix[0];
 
     for (int i = 1; i < matrixU.lines; ++i)
     {
-        det *= matrixU.GetValue(i, i);
+        det *= matrixU(i, i);
     }
 
     return det;
 }
 
-double Matrix::Det(const Matrix &matrixU)
+double Matrix::DetLU(const Matrix &upTriMatrix)
 {
-    if (matrixU.lines != matrixU.columns)
+    if (upTriMatrix.lines != upTriMatrix.columns)
     {
         error = -10;
         return 0.0;
     }
 
-    double det = matrixU.pMatrix[0];
+    double det = upTriMatrix.pMatrix[0];
 
-    for (int i = 1; i < matrixU.lines; ++i)
+    for (int i = 1; i < upTriMatrix.lines; ++i)
     {
-        det *= matrixU.GetValue(i, i);
+        det *= upTriMatrix(i, i);
     }
 
     return det;
@@ -502,11 +378,11 @@ Matrix Matrix::SolveLU(const Matrix &matrixF, double *pDet) const
     Matrix matrixL(size);
     Matrix matrixU(size);
 
-    LUDecomposition(matrixL, matrixU);
+    LU(matrixL, matrixU);
 
     if (pDet != nullptr)
     {
-        *pDet = Det(matrixU);
+        *pDet = DetLU(matrixU);
     }
 
     Matrix matrixY(size, 1);
@@ -564,7 +440,181 @@ Matrix Matrix::InvLU(double *pDet) const
 
     if (pDet != nullptr)
     {
-        *pDet = invertibleMatrix.Det();
+        *pDet = invertibleMatrix.DetLU();
+    }
+
+    return invertibleMatrix;
+}
+
+void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
+{
+    if (!MatricesEqual(*this, matrixQ) || !MatricesEqual(*this, matrixR))
+    {
+        error = -3;
+        return;
+    }
+
+    if (lines != columns)
+    {
+        error = -10;
+        return;
+    }
+
+    unsigned int size = lines;
+
+    for (int i = 0; i < size; ++i)
+    {
+        for (int j = 0; j < size; ++j)
+        {
+            if (i == j) matrixQ.SetValue(i, j, 1.0);
+            else matrixQ.SetValue(i, j, 0.0);
+        }
+    }
+
+    for (int i = 0; i < linLength; ++i)
+    {
+        matrixR.pMatrix[i] = pMatrix[i];
+    }
+
+    for (int column = 0; column < size; ++column)
+    {
+        for (int line = size - 1; line > column; --line)
+        {
+            if (abs(matrixR.GetValue(line, column)) < FloatEps)
+            {
+                continue;
+            }
+
+            Matrix matrixG(size);
+            for (int i = 0; i < size; ++i)
+            {
+                matrixG.SetValue(i, i, 1.0);
+            }
+
+            double cos;
+            double sin;
+            GivensRotation(matrixR(line, column), matrixR(line - 1, column), cos, sin);
+
+            int i = line -1;
+            int j = line;
+
+            matrixG.SetValue(i, i, cos);
+            matrixG.SetValue(i, j, sin);
+            matrixG.SetValue(j, i, -sin);
+            matrixG.SetValue(j, j, cos);
+
+            matrixQ = matrixQ * matrixG;
+            matrixR = matrixG.Transpose() * matrixR;
+        }
+    }
+}
+
+double Matrix::DetQR() const
+{
+    if (this->lines != this->columns)
+    {
+        error = -10;
+        return 0.0;
+    }
+
+    Matrix matrixQ(lines);
+    Matrix matrixR(lines);
+
+    QR_Givens(matrixQ, matrixR);
+
+    double det = matrixR.pMatrix[0];
+
+    for (int i = 1; i < matrixR.lines; ++i)
+    {
+        det *= matrixR(i, i);
+    }
+
+    return det;
+}
+
+double Matrix::DetQR(const Matrix &rightTriMatrix)
+{
+    if (rightTriMatrix.lines != rightTriMatrix.columns)
+    {
+        error = -10;
+        return 0.0;
+    }
+
+    double det = rightTriMatrix.pMatrix[0];
+
+    for (int i = 1; i < rightTriMatrix.lines; ++i)
+    {
+        det *= rightTriMatrix(i, i);
+    }
+
+    return det;
+}
+
+Matrix Matrix::SolveQR(const Matrix &matrixF, double *pDet) const
+{
+    if (lines != columns)
+    {
+        error = -10;
+        return Matrix();
+    }
+
+    unsigned int size = lines;
+
+    Matrix matrixQ(size);
+    Matrix matrixR(size);
+
+    QR_Givens(matrixQ, matrixR);
+
+    if (pDet != nullptr)
+    {
+        *pDet = DetQR(matrixR);
+    }
+
+    Matrix matrixY = matrixQ.Transpose() * matrixF;
+
+    Matrix matrixX(size, 1);
+    double sum;
+
+    for (int line = size - 1; line >= 0; --line)
+    {
+        sum = 0.0;
+        for (int j = line; j < size; ++j)
+        {
+            sum += matrixR(line, j) * matrixX.pMatrix[j];
+        }
+
+        matrixX.pMatrix[line] = (matrixY.pMatrix[line] - sum) / matrixR(line, line);
+    }
+
+    return matrixX;
+}
+
+Matrix Matrix::InvQR(double *pDet) const
+{
+    if (this->lines != this->columns)
+    {
+        error = -10;
+        return Matrix();
+    }
+
+    Matrix invertibleMatrix(this->lines);
+
+    for (int column = 0; column < this->lines; ++column)
+    {
+        Matrix columnMatrix(this->lines, 1);
+        columnMatrix.pMatrix[column] = 1;
+
+        columnMatrix = SolveQR(columnMatrix);
+
+        for (int lineIndex = 0; lineIndex < this->lines; ++lineIndex)
+        {
+            invertibleMatrix(lineIndex, column) = columnMatrix.pMatrix[lineIndex];
+        }
+    }
+
+    if (pDet != nullptr)
+    {
+        *pDet = invertibleMatrix.DetQR();
     }
 
     return invertibleMatrix;
@@ -692,7 +742,14 @@ ostream &operator<<(ostream& os, const Matrix &matrix)
     {
         for (int columnIndex = 0; columnIndex < matrix.columns; ++columnIndex)
         {
-            os << matrix.pMatrix[matrix.GetArrayIndex(lineIndex, columnIndex)] << "\t";
+            if (abs(matrix(lineIndex, columnIndex)) < Matrix::FloatEps)
+            {
+                os << 0.0 << "\t";
+            }
+            else
+            {
+                os << matrix(lineIndex, columnIndex) << "\t";
+            }
         }
 
         os << endl;

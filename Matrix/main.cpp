@@ -109,7 +109,7 @@ int main()
     cout << "Matrix L" << endl << matrixL << endl;
 
     Matrix mMatrix = matrixL * matrixU;
-    cout << "Matrix Multiplication" << endl << mMatrix << endl;*/
+    cout << "Check" << endl << mMatrix << endl;*/
 
     // DetLU
     /*int size = 3;
@@ -168,7 +168,7 @@ int main()
     cout << "Check" << endl << check << endl;*/
 
     //QR-Givens decomposition
-    unsigned int size = 3;
+    /*unsigned int size = 3;
     Matrix matrixA(size);
 
     string aValues = "4 2 3 2 5 1 3 1 6";
@@ -186,7 +186,7 @@ int main()
     cout << "MatrixR" << endl << matrixR << endl;
 
     Matrix check = matrixQ * matrixR;
-    cout << "Check" << endl << check << endl;
+    cout << "Check" << endl << check << endl;*/
 
     // DetQR
     /*int size = 3;

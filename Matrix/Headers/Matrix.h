@@ -79,7 +79,7 @@ public:
         {
             for (int columnIndex = 0; columnIndex < matrix.columns; ++columnIndex)
             {
-                if (matrix.GetValue(lineIndex, columnIndex) - matrix.GetValue(columnIndex, lineIndex) > FloatEps)
+                if (matrix(lineIndex, columnIndex) - matrix(columnIndex, lineIndex) > FloatEps)
                 {
                     return false;
                 }

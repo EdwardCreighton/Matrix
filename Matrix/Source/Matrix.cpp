@@ -106,28 +106,28 @@ void Matrix::ChD(const Matrix& matrixA, Matrix& matrixL, Matrix& matrixU)
             sum = 0.0;
             for (int k = 0; k < j; ++k)
             {
-                sum += matrixL.GetValue(i, k) * matrixL.GetValue(j, k);
+                sum += matrixL(i, k) * matrixL(j, k);
             }
 
-            value = (matrixA.GetValue(i, j) - sum) / matrixL.GetValue(j, j);
-            matrixL.SetValue(i, j, value);
+            value = (matrixA(i, j) - sum) / matrixL(j, j);
+            matrixL(i, j, value);
         }
 
-        sum = matrixA.GetValue(i, i);
+        sum = matrixA(i, i);
         for (int k = 0; k < i; ++k)
         {
-            sum -= matrixL.GetValue(i, k) * matrixL.GetValue(i, k);
+            sum -= matrixL(i, k) * matrixL(i, k);
         }
 
         value = sqrt(sum);
-        matrixL.SetValue(i, i, value);
+        matrixL(i, i, value);
     }
 
     for (int i = 0; i < size; ++i)
     {
         for (int j = 0; j < size; ++j)
         {
-            matrixU.SetValue(i, j, matrixL.GetValue(j, i));
+            matrixU(i, j, matrixL(j, i));
         }
     }
 }
@@ -251,7 +251,7 @@ Matrix Matrix::Transpose() const
     {
         for (int l = 0; l < T.columns; ++l)
         {
-            T.SetValue(k, l, GetValue(l, k));
+            T(k, l, GetValue(l, k));
         }
     }
 
@@ -277,15 +277,15 @@ void Matrix::LU(Matrix &matrixL, Matrix &matrixU) const
     {
         for (int columnIndex = 0; columnIndex < lines; ++columnIndex)
         {
-            matrixU.SetValue(lineIndex, columnIndex, 0.0);
+            matrixU(lineIndex, columnIndex, 0.0);
 
             if (lineIndex == columnIndex)
             {
-                matrixL.SetValue(lineIndex, columnIndex, 1.0);
+                matrixL(lineIndex, columnIndex, 1.0);
             }
             else
             {
-                matrixL.SetValue(lineIndex, columnIndex, 0.0);
+                matrixL(lineIndex, columnIndex, 0.0);
             }
         }
     }
@@ -303,21 +303,21 @@ void Matrix::LU(Matrix &matrixL, Matrix &matrixU) const
             {
                 for (int k = 0; k < lineIndex; ++k)
                 {
-                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
+                    sum += matrixL(lineIndex, k) * matrixU(k, columnIndex);
                 }
 
                 value = GetValue(lineIndex, columnIndex) - sum;
-                matrixU.SetValue(lineIndex, columnIndex, value);
+                matrixU(lineIndex, columnIndex, value);
             }
             else
             {
                 for (int k = 0; k < columnIndex; ++k)
                 {
-                    sum += matrixL.GetValue(lineIndex, k) * matrixU.GetValue(k, columnIndex);
+                    sum += matrixL(lineIndex, k) * matrixU(k, columnIndex);
                 }
 
-                value = (GetValue(lineIndex, columnIndex) - sum) / matrixU.GetValue(columnIndex, columnIndex);
-                matrixL.SetValue(lineIndex, columnIndex, value);
+                value = (GetValue(lineIndex, columnIndex) - sum) / matrixU(columnIndex, columnIndex);
+                matrixL(lineIndex, columnIndex, value);
             }
         }
     }
@@ -393,7 +393,7 @@ Matrix Matrix::SolveLU(const Matrix &matrixF, double *pDet) const
         sum = 0.0;
         for (int j = 0; j < i; ++j)
         {
-            sum += matrixL.GetValue(i, j) * matrixY.pMatrix[j];
+            sum += matrixL(i, j) * matrixY.pMatrix[j];
         }
         
         matrixY.pMatrix[i] = matrixF.pMatrix[i] - sum;
@@ -406,10 +406,10 @@ Matrix Matrix::SolveLU(const Matrix &matrixF, double *pDet) const
         sum = 0.0;
         for (int j = i + 1; j < size; ++j)
         {
-            sum += matrixU.GetValue(i, j) * matrixX.pMatrix[j];
+            sum += matrixU(i, j) * matrixX.pMatrix[j];
         }
 
-        matrixX.pMatrix[i] = (matrixY.pMatrix[i] - sum) / matrixU.GetValue(i, i);
+        matrixX.pMatrix[i] = (matrixY.pMatrix[i] - sum) / matrixU(i, i);
     }
 
     return matrixX;
@@ -434,7 +434,7 @@ Matrix Matrix::InvLU(double *pDet) const
 
         for (int lineIndex = 0; lineIndex < this->lines; ++lineIndex)
         {
-            invertibleMatrix.SetValue(lineIndex, column, columnMatrix.pMatrix[lineIndex]);
+            invertibleMatrix(lineIndex, column, columnMatrix.pMatrix[lineIndex]);
         }
     }
 
@@ -466,8 +466,8 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
     {
         for (int j = 0; j < size; ++j)
         {
-            if (i == j) matrixQ.SetValue(i, j, 1.0);
-            else matrixQ.SetValue(i, j, 0.0);
+            if (i == j) matrixQ(i, j, 1.0);
+            else matrixQ(i, j, 0.0);
         }
     }
 
@@ -488,7 +488,7 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
             Matrix matrixG(size);
             for (int i = 0; i < size; ++i)
             {
-                matrixG.SetValue(i, i, 1.0);
+                matrixG(i, i, 1.0);
             }
 
             double cos;
@@ -509,7 +509,7 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
             {
                 for (int columnInit = 0, column = i; column <= j; ++column, ++columnInit)
                 {
-                    matrixQInitValues.SetValue(line, columnInit, matrixQ(line, column));
+                    matrixQInitValues(line, columnInit, matrixQ(line, column));
                 }
             }
 
@@ -845,10 +845,10 @@ Matrix operator*(const Matrix &matrixLeft, const Matrix &matrixRight)
 
             for (int i = 0; i < matrixLeft.columns; ++i)
             {
-                value += matrixLeft.GetValue(lineIndex, i) * matrixRight.GetValue(i, columnIndex);
+                value += matrixLeft(lineIndex, i) * matrixRight(i, columnIndex);
             }
 
-            dotProduct.SetValue(lineIndex, columnIndex, value);
+            dotProduct(lineIndex, columnIndex, value);
         }
     }
 

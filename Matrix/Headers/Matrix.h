@@ -136,6 +136,11 @@ public:
     {
         return this->pMatrix[line * columns + column];
     }
+
+    inline void operator()(unsigned int line, unsigned int column, double value) const
+    {
+        this->pMatrix[line * columns + column] = value;
+    }
 };
 
 #endif //MATRIX_MATRIX_H

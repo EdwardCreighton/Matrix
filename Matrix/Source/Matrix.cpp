@@ -480,7 +480,7 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
     {
         for (int line = size - 1; line > column; --line)
         {
-            if (abs(matrixR.GetValue(line, column)) < FloatEps)
+            if (abs(matrixR(line, column)) < FloatEps)
             {
                 continue;
             }
@@ -498,12 +498,31 @@ void Matrix::QR_Givens(Matrix &matrixQ, Matrix &matrixR) const
             int i = line -1;
             int j = line;
 
-            matrixG.SetValue(i, i, cos);
-            matrixG.SetValue(i, j, sin);
-            matrixG.SetValue(j, i, -sin);
-            matrixG.SetValue(j, j, cos);
+            matrixG(i, i, cos);
+            matrixG(i, j, sin);
+            matrixG(j, i, -sin);
+            matrixG(j, j, cos);
 
-            matrixQ = matrixQ * matrixG;
+            Matrix matrixQInitValues(matrixQ.lines, 2);
+
+            for (int line = 0; line < matrixQ.lines; ++line)
+            {
+                for (int columnInit = 0, column = i; column <= j; ++column, ++columnInit)
+                {
+                    matrixQInitValues.SetValue(line, columnInit, matrixQ(line, column));
+                }
+            }
+
+            // matrixQ = matrixQ * matrixG
+            for (int line = 0; line < matrixQ.lines; ++line)
+            {
+                double value = matrixQInitValues(line, 0) * matrixG(i, i) + matrixQInitValues(line, 1) * matrixG(j, i);
+                matrixQ(line, i, value);
+
+                value = matrixQInitValues(line, 0) * matrixG(i, j) + matrixQInitValues(line, 1) * matrixG(j, j);
+                matrixQ(line, j, value);
+            }
+
             matrixR = matrixG.Transpose() * matrixR;
         }
     }
